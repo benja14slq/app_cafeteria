@@ -9,6 +9,7 @@ class ProductCard extends StatelessWidget {
   final String imageUrl;
   final double price;
   final String category;
+  final VoidCallback onAddToCart;
   final void Function(dynamic q)? onQuantityChanged;
 
   const ProductCard({
@@ -19,6 +20,7 @@ class ProductCard extends StatelessWidget {
     required this.price,
     required this.category,
     this.onQuantityChanged,
+    required this.onAddToCart,
   });
 
   @override
