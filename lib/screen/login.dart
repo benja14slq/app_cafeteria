@@ -1,7 +1,10 @@
+import 'dart:convert';
 import 'package:app_cafeteria/app_colors/app_colors.dart';
 import 'package:app_cafeteria/screen/home.dart';
+import 'package:app_cafeteria/screen/registro_screen.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:crypto/crypto.dart';
 import 'package:flutter/material.dart';
- // Asegúrate de que la ruta es correcta
 
 class LoginPage extends StatefulWidget {
   const LoginPage({super.key});
@@ -12,10 +15,8 @@ class LoginPage extends StatefulWidget {
 
 class _LoginPageState extends State<LoginPage> {
   final _emailController = TextEditingController();
-  final _passwordController =
-      TextEditingController(); //Definen controladroes para capturar el texto ingresado
-  bool _isPasswordVisible =
-      false; //Se usa un booleano para alternar entre mostrar u ocultar contraseña
+  final _passwordController = TextEditingController();
+  bool _isPasswordVisible = false;
   final bool _rememberMe = false;
 
   @override
@@ -23,17 +24,56 @@ class _LoginPageState extends State<LoginPage> {
     _emailController.dispose();
     _passwordController.dispose();
     super.dispose();
-  } //Libera los controladores de texto cuando la pantalla se destruye para evitar fugas de memoria.
+  }
+
+  Future<void> _iniciarSesion() async {
+    final correo = _emailController.text.trim();
+    final contrasena = _passwordController.text.trim();
+
+    if (correo.isEmpty || contrasena.isEmpty) {
+      _mostrarError('Todos los campos son obligatorios');
+      return;
+    }
+
+    try {
+      final usuarios = FirebaseFirestore.instance.collection('usuarios');
+      final consulta = await usuarios.where('correo', isEqualTo: correo).get();
+
+      if (consulta.docs.isEmpty) {
+        _mostrarError('Usuario no encontrado');
+        return;
+      }
+
+      final usuario = consulta.docs.first.data();
+      final contrasenaHash = sha256.convert(utf8.encode(contrasena)).toString();
+
+      if (usuario['contraseña'] != contrasenaHash) {
+        _mostrarError('Contraseña incorrecta');
+        return;
+      }
+
+      // Inicio de sesión exitoso
+      Navigator.of(context).pushReplacement(
+        MaterialPageRoute(builder: (_) => const HomePage()),
+      );
+    } catch (e) {
+      _mostrarError('Error: $e');
+    }
+  }
+
+  void _mostrarError(String mensaje) {
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(content: Text(mensaje), backgroundColor: Colors.red),
+    );
+  }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: AppColors.backgroundLight,
       body: SafeArea(
-        //Evita que se solape con la barra de notificaciones.
         child: Center(
           child: SingleChildScrollView(
-            //Permite que la vista sea desplazable
             child: Padding(
               padding: const EdgeInsets.all(24.0),
               child: Column(
@@ -48,7 +88,7 @@ class _LoginPageState extends State<LoginPage> {
                       shape: BoxShape.circle,
                     ),
                     child: const Icon(
-                      Icons.lock, //Ícono visual para representar seguridad
+                      Icons.lock,
                       size: 50,
                       color: Colors.white,
                     ),
@@ -152,12 +192,7 @@ class _LoginPageState extends State<LoginPage> {
                     width: double.infinity,
                     height: 55,
                     child: ElevatedButton(
-                      onPressed: () {
-                        // Aquí iría tu validación de credenciales...
-                        Navigator.of(context).pushReplacement(
-                          MaterialPageRoute(builder: (_) => const HomePage()),
-                        ); //Cuando se presiona, se navega a HomePage
-                      },
+                      onPressed: _iniciarSesion,
                       style: ElevatedButton.styleFrom(
                         backgroundColor: AppColors.primary,
                         foregroundColor: Colors.white,
@@ -192,7 +227,11 @@ class _LoginPageState extends State<LoginPage> {
                       ),
                       TextButton(
                         onPressed: () {
-                          // Navegar a registro, si lo tienes
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                                builder: (_) => const RegistroScreen()),
+                          );
                         },
                         child: Text(
                           'Regístrate',
@@ -213,3 +252,4 @@ class _LoginPageState extends State<LoginPage> {
     );
   }
 }
+
