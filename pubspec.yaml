@@ -7,12 +7,9 @@ environment:
   sdk: ^3.7.2
 
 dependencies:
-<<<<<<< Updated upstream
-=======
   cloud_firestore: ^5.6.8
   crypto: ^3.0.6
   firebase_core: ^3.13.1
->>>>>>> Stashed changes
   flutter:
     sdk: flutter
   provider: ^6.1.5
