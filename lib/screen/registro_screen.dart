@@ -20,6 +20,8 @@ class _RegistroScreenState extends State<RegistroScreen> {
   final _correoController = TextEditingController();
   final _contrasenaController = TextEditingController();
   final _confirmarContrasenaController = TextEditingController();
+  bool _isPasswordVisible = false;
+  bool _isConfirmPasswordVisible = false;
 
   bool _isLoading = false;
 
@@ -66,9 +68,9 @@ class _RegistroScreenState extends State<RegistroScreen> {
         MaterialPageRoute(builder: (context) => const LoginPage()),
       );
     } catch (e) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Error: $e')),
-      );
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text('Error: $e')));
     }
   }
 
@@ -84,6 +86,7 @@ class _RegistroScreenState extends State<RegistroScreen> {
       backgroundColor: AppColors.background,
       appBar: AppBar(
         backgroundColor: AppColors.primaryDark,
+        foregroundColor: AppColors.backgroundLight,
         title: const Text('Registro de Usuario'),
       ),
       body: Padding(
@@ -105,13 +108,41 @@ class _RegistroScreenState extends State<RegistroScreen> {
                 _buildTextField(
                   _contrasenaController,
                   'Contraseña',
-                  obscureText: true,
+                  obscureText: !_isPasswordVisible,
                   validator: _validarContrasena,
+                  suffixIcon: IconButton(
+                    icon: Icon(
+                      _isPasswordVisible
+                          ? Icons.visibility_off
+                          : Icons.visibility,
+                      color: AppColors.secondary,
+                    ),
+                    onPressed: () {
+                      setState(() => _isPasswordVisible = !_isPasswordVisible);
+                    },
+                  ),
                 ),
                 _buildTextField(
                   _confirmarContrasenaController,
                   'Confirmar Contraseña',
-                  obscureText: true,
+                  obscureText: !_isConfirmPasswordVisible,
+                  suffixIcon: IconButton(
+                    icon: Icon(
+                      _isConfirmPasswordVisible
+                          ? Icons.visibility_off
+                          : Icons.visibility,
+                      color: AppColors.secondary,
+                    ),
+                    onPressed: () {
+                      setState(() {
+                        setState(
+                          () =>
+                              _isConfirmPasswordVisible =
+                                  !_isConfirmPasswordVisible,
+                        );
+                      });
+                    },
+                  ),
                 ),
                 const SizedBox(height: 20),
                 _isLoading
@@ -144,6 +175,7 @@ class _RegistroScreenState extends State<RegistroScreen> {
     bool obscureText = false,
     TextInputType keyboardType = TextInputType.text,
     String? Function(String?)? validator,
+    Widget? suffixIcon,
   }) {
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 8.0),
@@ -159,6 +191,7 @@ class _RegistroScreenState extends State<RegistroScreen> {
           filled: true,
           fillColor: AppColors.backgroundLight,
           border: OutlineInputBorder(borderRadius: BorderRadius.circular(8)),
+          suffixIcon: suffixIcon,
         ),
       ),
     );
