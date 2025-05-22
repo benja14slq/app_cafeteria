@@ -16,14 +16,30 @@ class _RegistroScreenState extends State<RegistroScreen> {
   final _formKey = GlobalKey<FormState>();
   final _nombreController = TextEditingController();
   final _apellidosController = TextEditingController();
-  final _carreraController = TextEditingController();
   final _correoController = TextEditingController();
   final _contrasenaController = TextEditingController();
   final _confirmarContrasenaController = TextEditingController();
+
   bool _isPasswordVisible = false;
   bool _isConfirmPasswordVisible = false;
-
   bool _isLoading = false;
+
+  String? _carreraSeleccionada;
+  List<String> _carreras = [];
+
+  @override
+  void initState() {
+    super.initState();
+    _cargarCarreras();
+  }
+
+  Future<void> _cargarCarreras() async {
+    final snapshot =
+        await FirebaseFirestore.instance.collection('carrera').get();
+    setState(() {
+      _carreras = snapshot.docs.map((doc) => doc['carrera'].toString()).toList();
+    });
+  }
 
   Future<void> _registrarUsuario() async {
     if (!_formKey.currentState!.validate()) return;
@@ -37,14 +53,19 @@ class _RegistroScreenState extends State<RegistroScreen> {
       return;
     }
 
+    if (_carreraSeleccionada == null) {
+      _showError('Seleccione una carrera');
+      return;
+    }
+
     setState(() => _isLoading = true);
 
     try {
       final usuarios = FirebaseFirestore.instance.collection('usuarios');
-
       final existente = await usuarios.where('correo', isEqualTo: correo).get();
+
       if (existente.docs.isNotEmpty) {
-        _showError('El correo ya esta registrado');
+        _showError('El correo ya está registrado');
         setState(() => _isLoading = false);
         return;
       }
@@ -54,7 +75,7 @@ class _RegistroScreenState extends State<RegistroScreen> {
       await usuarios.add({
         'nombre': _nombreController.text.trim(),
         'apellidos': _apellidosController.text.trim(),
-        'carrera': _carreraController.text.trim(),
+        'carrera': _carreraSeleccionada,
         'correo': correo,
         'contraseña': hashedPassword,
       });
@@ -68,15 +89,53 @@ class _RegistroScreenState extends State<RegistroScreen> {
         MaterialPageRoute(builder: (context) => const LoginPage()),
       );
     } catch (e) {
-      ScaffoldMessenger.of(
-        context,
-      ).showSnackBar(SnackBar(content: Text('Error: $e')));
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Error: $e')),
+      );
     }
   }
 
   void _showError(String message) {
     ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(content: Text(message), backgroundColor: Colors.red),
+      SnackBar(
+        content: Text(message),
+        backgroundColor: AppColors.primaryMedium,
+      ),
+    );
+  }
+
+  void _mostrarSelectorCarrera() {
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      backgroundColor: AppColors.backgroundLight,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(16)),
+      ),
+      builder: (context) {
+        return DraggableScrollableSheet(
+          expand: false,
+          maxChildSize: 0.7,
+          builder: (_, controller) {
+            return ListView.builder(
+              controller: controller,
+              itemCount: _carreras.length,
+              itemBuilder: (context, index) {
+                final carrera = _carreras[index];
+                return ListTile(
+                  title: Text(carrera),
+                  onTap: () {
+                    setState(() {
+                      _carreraSeleccionada = carrera;
+                    });
+                    Navigator.pop(context);
+                  },
+                );
+              },
+            );
+          },
+        );
+      },
     );
   }
 
@@ -98,7 +157,7 @@ class _RegistroScreenState extends State<RegistroScreen> {
               children: [
                 _buildTextField(_nombreController, 'Nombre'),
                 _buildTextField(_apellidosController, 'Apellidos'),
-                _buildTextField(_carreraController, 'Carrera'),
+                _buildDropdownCarrera(),
                 _buildTextField(
                   _correoController,
                   'Correo electrónico',
@@ -135,11 +194,7 @@ class _RegistroScreenState extends State<RegistroScreen> {
                     ),
                     onPressed: () {
                       setState(() {
-                        setState(
-                          () =>
-                              _isConfirmPasswordVisible =
-                                  !_isConfirmPasswordVisible,
-                        );
+                        _isConfirmPasswordVisible = !_isConfirmPasswordVisible;
                       });
                     },
                   ),
@@ -148,19 +203,19 @@ class _RegistroScreenState extends State<RegistroScreen> {
                 _isLoading
                     ? const CircularProgressIndicator()
                     : ElevatedButton(
-                      onPressed: _registrarUsuario,
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: AppColors.primary,
-                        padding: const EdgeInsets.symmetric(
-                          horizontal: 40,
-                          vertical: 12,
+                        onPressed: _registrarUsuario,
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: AppColors.primary,
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 40,
+                            vertical: 12,
+                          ),
+                        ),
+                        child: const Text(
+                          'Registrarse',
+                          style: TextStyle(color: AppColors.backgroundLight),
                         ),
                       ),
-                      child: const Text(
-                        'Registrarse',
-                        style: TextStyle(color: AppColors.backgroundLight),
-                      ),
-                    ),
               ],
             ),
           ),
@@ -197,6 +252,32 @@ class _RegistroScreenState extends State<RegistroScreen> {
     );
   }
 
+  Widget _buildDropdownCarrera() {
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 8.0),
+      child: InkWell(
+        onTap: () => _mostrarSelectorCarrera(),
+        child: InputDecorator(
+          decoration: InputDecoration(
+            labelText: 'Carrera',
+            labelStyle: const TextStyle(color: AppColors.primaryDark),
+            filled: true,
+            fillColor: AppColors.backgroundLight,
+            border: OutlineInputBorder(borderRadius: BorderRadius.circular(8)),
+          ),
+          child: Text(
+            _carreraSeleccionada ?? 'Seleccione una carrera',
+            style: TextStyle(
+              color: _carreraSeleccionada == null
+                  ? Colors.grey
+                  : AppColors.primaryDark,
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+
   String? _validarCorreo(String? value) {
     final correoRegExp = RegExp(r'^[\w\.-]+@(usm\.cl|sansano\.usm\.cl)$');
     if (value == null || !correoRegExp.hasMatch(value)) {
@@ -206,9 +287,8 @@ class _RegistroScreenState extends State<RegistroScreen> {
   }
 
   String? _validarContrasena(String? value) {
-    final contrasenaRegExp = RegExp(
-      r'^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)[A-Za-z\d]{8,}$',
-    );
+    final contrasenaRegExp =
+        RegExp(r'^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)[A-Za-z\d]{8,}$');
     if (value == null || !contrasenaRegExp.hasMatch(value)) {
       return 'Contraseña debe tener 8+ caracteres, mayúscula, minúscula y número';
     }
