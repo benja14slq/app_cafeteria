@@ -1,10 +1,64 @@
 // account_page.dart
 import 'package:app_cafeteria/app_colors/app_colors.dart';
 import 'package:app_cafeteria/widgets/header_page.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
-class AccountPage extends StatelessWidget {
+class AccountPage extends StatefulWidget {
   const AccountPage({super.key});
+
+  @override
+  State<AccountPage> createState() => _AccountPageState();
+}
+
+class _AccountPageState extends State<AccountPage> {
+  String nombreUsuario = '';
+  String apellidosUsuario = '';
+  String carreraUsuario = '';
+  bool cargando = true;
+
+  @override
+  void initState() {
+    super.initState();
+    obtenerDatosUsuario();
+  }
+
+  Future<void> obtenerDatosUsuario() async {
+    final prefs = await SharedPreferences.getInstance();
+    final correo = prefs.getString('correo');
+
+    if (correo == null) {
+      setState(() {
+        nombreUsuario = 'Usuario no Identificado';
+        carreraUsuario = '';
+        cargando = false;
+      });
+      return;
+    }
+
+    final consulta =
+        await FirebaseFirestore.instance
+            .collection('usuarios')
+            .where('correo', isEqualTo: correo)
+            .get();
+
+    if (consulta.docs.isNotEmpty) {
+      final datos = consulta.docs.first.data();
+      setState(() {
+        nombreUsuario = datos['nombre'] ?? 'Sin nombre';
+        apellidosUsuario = datos['apellidos'] ?? '';
+        carreraUsuario = datos['carrera'] ?? 'Sin carrera';
+        cargando = false;
+      });
+    } else {
+      setState(() {
+        nombreUsuario = 'Usuario no encontrado';
+        carreraUsuario = '';
+        cargando = false;
+      });
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -61,8 +115,8 @@ class AccountPage extends StatelessWidget {
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          const Text(
-                            'Efraín Muñoz Rojas',
+                          Text(
+                            '$nombreUsuario $apellidosUsuario',
                             style: TextStyle(
                               fontSize: 20,
                               fontWeight: FontWeight.bold,
@@ -70,8 +124,8 @@ class AccountPage extends StatelessWidget {
                             ),
                           ),
                           const SizedBox(height: 4),
-                          const Text(
-                            'Director en Informática',
+                          Text(
+                            carreraUsuario,
                             style: TextStyle(
                               fontSize: 14,
                               color: Colors.white,

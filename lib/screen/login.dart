@@ -5,6 +5,7 @@ import 'package:app_cafeteria/screen/registro_screen.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:crypto/crypto.dart';
 import 'package:flutter/material.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class LoginPage extends StatefulWidget {
   const LoginPage({super.key});
@@ -52,10 +53,13 @@ class _LoginPageState extends State<LoginPage> {
         return;
       }
 
+      final prefs = await SharedPreferences.getInstance();
+      await prefs.setString('correo', correo);
+
       // Inicio de sesión exitoso
-      Navigator.of(context).pushReplacement(
-        MaterialPageRoute(builder: (_) => const HomePage()),
-      );
+      Navigator.of(
+        context,
+      ).pushReplacement(MaterialPageRoute(builder: (_) => const HomePage()));
     } catch (e) {
       _mostrarError('Error: $e');
     }
@@ -230,7 +234,8 @@ class _LoginPageState extends State<LoginPage> {
                           Navigator.push(
                             context,
                             MaterialPageRoute(
-                                builder: (_) => const RegistroScreen()),
+                              builder: (_) => const RegistroScreen(),
+                            ),
                           );
                         },
                         child: Text(
