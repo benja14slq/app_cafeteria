@@ -1,6 +1,7 @@
 import 'package:app_cafeteria/app_colors/app_colors.dart';
 import 'package:app_cafeteria/models/cart_model.dart';
 import 'package:app_cafeteria/screen/login.dart';
+import 'package:app_cafeteria/screen_tienda/store_own_page.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:firebase_core/firebase_core.dart';
@@ -33,7 +34,7 @@ class MyApp extends StatelessWidget {
         ),
         debugShowCheckedModeBanner: false,
         home:
-            LoginPage(), // Define la primera pantalla que se muestra: El Login
+            StoreOwnPage(), // Define la primera pantalla que se muestra: El Login
       ),
     );
   }
