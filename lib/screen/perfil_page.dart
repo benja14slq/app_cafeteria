@@ -9,6 +9,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 class AccountPage extends StatefulWidget {
   const AccountPage({super.key});
 
+  @override
   State<AccountPage> createState() => _AccountPageState();
 }
 
