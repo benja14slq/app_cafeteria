@@ -78,6 +78,7 @@ class _RegistroScreenState extends State<RegistroScreen> {
         'carrera': _carreraSeleccionada,
         'correo': correo,
         'contraseña': hashedPassword,
+        'tipo': 'Estudiante',
       });
 
       ScaffoldMessenger.of(context).showSnackBar(
