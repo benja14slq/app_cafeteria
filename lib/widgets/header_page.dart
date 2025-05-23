@@ -1,5 +1,6 @@
 import 'package:app_cafeteria/app_colors/app_colors.dart';
 import 'package:app_cafeteria/models/cart_model.dart';
+import 'package:app_cafeteria/screen/pedidos.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
@@ -47,7 +48,9 @@ class HeaderPage extends StatelessWidget implements PreferredSizeWidget {
             IconButton(
               icon: const Icon(Icons.shopping_cart, color: Colors.white),
               onPressed: () {
-                // tu lógica para ir al carrito
+                Navigator.of(context).push(
+                  MaterialPageRoute(builder: (context) => const OrderPage()),
+                );
               },
             ),
             Consumer<CartModel>(
