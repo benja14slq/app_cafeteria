@@ -1,21 +1,20 @@
 import 'dart:convert';
+
 import 'package:app_cafeteria/app_colors/app_colors.dart';
-import 'package:app_cafeteria/screen/home.dart';
-import 'package:app_cafeteria/screen/registro_screen.dart';
-import 'package:app_cafeteria/screen_tienda/login_admin.dart';
+import 'package:app_cafeteria/screen_tienda/store_own_page.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:crypto/crypto.dart';
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
-class LoginPage extends StatefulWidget {
-  const LoginPage({super.key});
+class LoginAdmin extends StatefulWidget {
+  const LoginAdmin({super.key});
 
   @override
-  State<LoginPage> createState() => _LoginPageState();
+  State<LoginAdmin> createState() => _LoginAdminState();
 }
 
-class _LoginPageState extends State<LoginPage> {
+class _LoginAdminState extends State<LoginAdmin> {
   final _emailController = TextEditingController();
   final _passwordController = TextEditingController();
   bool _isPasswordVisible = false;
@@ -30,9 +29,9 @@ class _LoginPageState extends State<LoginPage> {
 
   Future<void> _iniciarSesion() async {
     final correo = _emailController.text.trim();
-    final contrasena = _passwordController.text.trim();
+    final contrasenaIngresada = _passwordController.text.trim();
 
-    if (correo.isEmpty || contrasena.isEmpty) {
+    if (correo.isEmpty || contrasenaIngresada.isEmpty) {
       _mostrarError('Todos los campos son obligatorios');
       return;
     }
@@ -47,9 +46,9 @@ class _LoginPageState extends State<LoginPage> {
       }
 
       final usuario = consulta.docs.first.data();
-      final contrasenaHash = sha256.convert(utf8.encode(contrasena)).toString();
+      final contrasena = usuario['contraseña'];
 
-      if (usuario['contraseña'] != contrasenaHash) {
+      if (contrasena != contrasenaIngresada) {
         _mostrarError('Contraseña incorrecta');
         return;
       }
@@ -59,10 +58,10 @@ class _LoginPageState extends State<LoginPage> {
 
       final tipo = usuario['tipo'];
 
-      if (tipo == 'Estudiante') {
+      if (tipo == 'Administrador') {
         Navigator.of(
           context,
-        ).pushReplacement(MaterialPageRoute(builder: (_) => const HomePage()));
+        ).pushReplacement(MaterialPageRoute(builder: (_) => const StoreOwnPage()));
       } else {
         _mostrarError('Solo ingresan estudiantes');
       }
@@ -223,66 +222,6 @@ class _LoginPageState extends State<LoginPage> {
                     ),
                   ),
                   const SizedBox(height: 20),
-
-                  // Texto para registrarse
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      Text(
-                        '¿No tienes una cuenta?',
-                        style: TextStyle(
-                          color: AppColors.primaryMedium,
-                          fontWeight: FontWeight.w500,
-                        ),
-                      ),
-                      TextButton(
-                        onPressed: () {
-                          Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                              builder: (_) => const RegistroScreen(),
-                            ),
-                          );
-                        },
-                        child: Text(
-                          'Regístrate',
-                          style: TextStyle(
-                            color: AppColors.accent1,
-                            fontWeight: FontWeight.bold,
-                          ),
-                        ),
-                      ),
-                    ],
-                  ),
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      Text(
-                        '¿Eres Administrador?',
-                        style: TextStyle(
-                          color: AppColors.primaryMedium,
-                          fontWeight: FontWeight.w500,
-                        ),
-                      ),
-                      TextButton(
-                        onPressed: () {
-                          Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                              builder: (_) => const LoginAdmin(),
-                            ),
-                          );
-                        },
-                        child: Text(
-                          'Ingresa Aquí',
-                          style: TextStyle(
-                            color: AppColors.accent1,
-                            fontWeight: FontWeight.bold,
-                          ),
-                        ),
-                      ),
-                    ],
-                  ),
                 ],
               ),
             ),
