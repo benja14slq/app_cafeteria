@@ -13,21 +13,24 @@ class AccountPage extends StatefulWidget {
 }
 
 class _AccountPageState extends State<AccountPage> {
+  // Variables para almacenar datos del Usuario
   String nombreUsuario = '';
   String apellidosUsuario = '';
   String carreraUsuario = '';
-  bool cargando = true;
+  bool cargando = true; // Indica si los datos aún se están cargando
 
   @override
   void initState() {
     super.initState();
-    obtenerDatosUsuario();
+    obtenerDatosUsuario(); // Obtener los datos al iniciar la pantalla
   }
 
+  // Función para obtener los datos del usuario desde Firestore
   Future<void> obtenerDatosUsuario() async {
     final prefs = await SharedPreferences.getInstance();
-    final correo = prefs.getString('correo');
+    final correo = prefs.getString('correo'); // Obtener el correo guardado localmente
 
+  // Si no hay correo guardado, mostrar mensaje por defecto
     if (correo == null) {
       setState(() {
         nombreUsuario = 'Usuario no Identificado';
@@ -37,12 +40,14 @@ class _AccountPageState extends State<AccountPage> {
       return;
     }
 
+  // Buscar el usuario en 'usuarios' usando el correo
     final consulta =
         await FirebaseFirestore.instance
             .collection('usuarios')
             .where('correo', isEqualTo: correo)
             .get();
 
+  // Si el usuario existe, asignar sus datos
     if (consulta.docs.isNotEmpty) {
       final datos = consulta.docs.first.data();
       setState(() {
@@ -52,6 +57,7 @@ class _AccountPageState extends State<AccountPage> {
         cargando = false;
       });
     } else {
+      // Si no se encuentra, mostrar mensaje de error
       setState(() {
         nombreUsuario = 'Usuario no encontrado';
         carreraUsuario = '';
@@ -332,6 +338,7 @@ class _AccountPageState extends State<AccountPage> {
     );
   }
 
+// Widget para crear las opciones del menú
   Widget _buildMenuOption(
     BuildContext context, {
     required IconData icon,
@@ -396,6 +403,7 @@ class _AccountPageState extends State<AccountPage> {
     );
   }
 
+// Widger para crear opciones con interruptores (switch)
   Widget _buildToggleOption(
     BuildContext context, {
     required IconData icon,

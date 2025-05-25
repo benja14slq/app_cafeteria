@@ -1,5 +1,5 @@
 import 'package:app_cafeteria/app_colors/app_colors.dart';
-import 'package:app_cafeteria/screen/home.dart';
+import 'package:app_cafeteria/screen_tienda/store_own_pedidos.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -58,7 +58,7 @@ class _LoginAdminState extends State<LoginAdmin> {
       if (tipo == 'Administrador') {
         Navigator.of(
           context,
-        ).pushReplacement(MaterialPageRoute(builder: (_) => const HomePage()));
+        ).pushReplacement(MaterialPageRoute(builder: (_) => const StoreOwnPedidos()));
       } else {
         _mostrarError('Solo ingresan estudiantes');
       }

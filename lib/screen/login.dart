@@ -16,49 +16,67 @@ class LoginPage extends StatefulWidget {
 }
 
 class _LoginPageState extends State<LoginPage> {
+  //Controladores de Texto para capturar correo y contraseña
   final _emailController = TextEditingController();
   final _passwordController = TextEditingController();
+
+  // Estado para mostrar u ocultar contraseña
   bool _isPasswordVisible = false;
+
+  // Estado para recordar al usuario 
   final bool _rememberMe = false;
 
   @override
   void dispose() {
+    // Liberar los controladores cuando no se necesiten más
     _emailController.dispose();
     _passwordController.dispose();
     super.dispose();
   }
 
+  // Función para iniciar sesión cuando se presiona el boton
   Future<void> _iniciarSesion() async {
+    // Obtener los valores y la contraseña ingresada
     final correo = _emailController.text.trim();
     final contrasena = _passwordController.text.trim();
 
+    // Verificar que ambos campos no están vacios
     if (correo.isEmpty || contrasena.isEmpty) {
       _mostrarError('Todos los campos son obligatorios');
       return;
     }
 
     try {
+      // Llamar a colección 'Usuarios' en Firestore
       final usuarios = FirebaseFirestore.instance.collection('usuarios');
+      // Buscar en 'Usuarios' el campo 'correo' sea igual al que se ingreso
       final consulta = await usuarios.where('correo', isEqualTo: correo).get();
 
+      // Si no se encuentra ningun usuario, mostrar error
       if (consulta.docs.isEmpty) {
         _mostrarError('Usuario no encontrado');
         return;
       }
 
+      // Se obtiene datos del usuario encontrado
       final usuario = consulta.docs.first.data();
+      // Hashear contraseña ingresada, mayor seguridad
       final contrasenaHash = sha256.convert(utf8.encode(contrasena)).toString();
 
+    // Comparar la contraseña ingresada con la almacenada en la base de datos.
       if (usuario['contraseña'] != contrasenaHash) {
         _mostrarError('Contraseña incorrecta');
         return;
       }
 
+    // Guardar el correo para mantener la sesión iniciada
       final prefs = await SharedPreferences.getInstance();
       await prefs.setString('correo', correo);
 
+    // Obtener el tipo de usuario para redireccionar si es estudiante
       final tipo = usuario['tipo'];
 
+    // Redirigir al HomePage si es de tipo Estudiante
       if (tipo == 'Estudiante') {
         Navigator.of(
           context,
@@ -67,10 +85,12 @@ class _LoginPageState extends State<LoginPage> {
         _mostrarError('Solo ingresan estudiantes');
       }
     } catch (e) {
+      // Capturar errores inesperados y mostrarlos
       _mostrarError('Error: $e');
     }
   }
 
+  // Función auxiliar para mostrar mensajes de error en un SnackBar
   void _mostrarError(String mensaje) {
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(content: Text(mensaje), backgroundColor: Colors.red),

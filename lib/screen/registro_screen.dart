@@ -13,27 +13,32 @@ class RegistroScreen extends StatefulWidget {
 }
 
 class _RegistroScreenState extends State<RegistroScreen> {
-  final _formKey = GlobalKey<FormState>();
+  final _formKey = GlobalKey<FormState>(); // Clave para validar el formulario
+
+  // Controladores de texto
   final _nombreController = TextEditingController();
   final _apellidosController = TextEditingController();
   final _correoController = TextEditingController();
   final _contrasenaController = TextEditingController();
   final _confirmarContrasenaController = TextEditingController();
 
+  // Estado de visibilidad de las contraseñas
   bool _isPasswordVisible = false;
   bool _isConfirmPasswordVisible = false;
-  bool _isLoading = false;
+  bool _isLoading = false; // Indica si está cargando
 
+  // Para seleccionar carrera
   String? _carreraSeleccionada;
   List<String> _carreras = [];
 
   @override
   void initState() {
     super.initState();
-    _cargarCarreras();
+    _cargarCarreras(); // Al iniciar, carga las carreras desde la BD
   }
 
   Future<void> _cargarCarreras() async {
+  // Obtiene todas las carreras de la BD 'carrera' y las guarda en _carreras
     final snapshot =
         await FirebaseFirestore.instance.collection('carrera').get();
     setState(() {
@@ -42,7 +47,7 @@ class _RegistroScreenState extends State<RegistroScreen> {
   }
 
   Future<void> _registrarUsuario() async {
-    if (!_formKey.currentState!.validate()) return;
+    if (!_formKey.currentState!.validate()) return; // Valida los campos
 
     final correo = _correoController.text.trim();
     final contrasena = _contrasenaController.text.trim();
@@ -61,6 +66,7 @@ class _RegistroScreenState extends State<RegistroScreen> {
     setState(() => _isLoading = true);
 
     try {
+    // Verifica si ya existe un usuario con ese correo
       final usuarios = FirebaseFirestore.instance.collection('usuarios');
       final existente = await usuarios.where('correo', isEqualTo: correo).get();
 
@@ -70,6 +76,7 @@ class _RegistroScreenState extends State<RegistroScreen> {
         return;
       }
 
+    // Convierte la contraseña y guarda en Firestore
       final hashedPassword = sha256.convert(utf8.encode(contrasena)).toString();
 
       await usuarios.add({
@@ -81,6 +88,7 @@ class _RegistroScreenState extends State<RegistroScreen> {
         'tipo': 'Estudiante',
       });
 
+    // Mensaje de Usuario registrado y redirige al Login
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text('Usuario registrado exitosamente')),
       );

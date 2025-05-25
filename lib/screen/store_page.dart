@@ -13,35 +13,38 @@ class StorePage extends StatefulWidget {
 }
 
 class _StorePageState extends State<StorePage> {
-  List<CartItem> _allProducts = [];
-  String _selectedCategory = 'Todo';
-  String _searchTerm = '';
-  final TextEditingController _searchController = TextEditingController();
+  List<CartItem> _allProducts = []; //Lista de los productos obtenidos desde Firestore
+  String _selectedCategory = 'Todo'; // Categoria actualmente seleccionada
+  String _searchTerm = ''; // Búsqueda ingresada por el usuario
+  final TextEditingController _searchController = TextEditingController(); // Controlador del campo de búsqueda
 
   @override
   void initState() {
     super.initState();
-    _loadProducts();
+    _loadProducts(); // Cargar productos al iniciar pantalla
   }
 
+// Obtener productos desde 'Productos' de Firestrore 
   Future<void> _loadProducts() async {
     final snapshot =
         await FirebaseFirestore.instance.collection('Productos').get();
     final productos =
         snapshot.docs
-            .map((doc) => CartItem.fromMap(doc.id, doc.data()))
+            .map((doc) => CartItem.fromMap(doc.id, doc.data())) // Convertir cada documento en CartItem
             .toList();
     setState(() {
       _allProducts = productos;
     });
   }
 
+// Obtener todas las categorías únicas de los productos
   List<String> get _categories {
     final uniqueCategories =
         _allProducts.map((p) => p.category).toSet().toList();
-    return ['Todo', ...uniqueCategories];
+    return ['Todo', ...uniqueCategories]; // Agrega 'Todo' al inicio
   }
 
+ // Filtrar producto según la categoría y el termino de búsqueda
   List<CartItem> get _filteredProducts {
     List<CartItem> categoryFiltered =
         _selectedCategory == 'Todo'
@@ -63,7 +66,7 @@ class _StorePageState extends State<StorePage> {
 
   @override
   void dispose() {
-    _searchController.dispose();
+    _searchController.dispose(); // Liberar recursos
     super.dispose();
   }
 
@@ -72,7 +75,7 @@ class _StorePageState extends State<StorePage> {
     final cart = Provider.of<CartModel>(context);
 
     return Scaffold(
-      appBar: const HeaderPage(showBackButton: false),
+      appBar: const HeaderPage(showBackButton: false), // Encabezado si boton atrás
       body: Column(
         children: [
           // 🔍 Buscador
@@ -89,7 +92,7 @@ class _StorePageState extends State<StorePage> {
                 filled: true,
                 fillColor: Colors.grey.shade200,
               ),
-              onChanged: (value) => setState(() => _searchTerm = value),
+              onChanged: (value) => setState(() => _searchTerm = value), // Actualizar término de búsqueda
             ),
           ),
 
