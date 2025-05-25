@@ -1,7 +1,7 @@
+import 'package:app_cafeteria/app_colors/app_colors.dart';
 import 'package:app_cafeteria/models/cart_model.dart';
 import 'package:app_cafeteria/screen_tienda/cart_inventario_model.dart';
 import 'package:app_cafeteria/screen_tienda/inventario_card.dart';
-import 'package:app_cafeteria/widgets/header_page.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
@@ -66,7 +66,16 @@ class _StoreOwnPageState extends State<StoreOwnPage> {
     final cart = Provider.of<CartModel>(context);
 
     return Scaffold(
-      appBar: const HeaderPage(showBackButton: false),
+      appBar: AppBar(
+        backgroundColor: AppColors.primary,
+        title: Text(
+          'Cafetería Express',
+          style: const TextStyle(
+          color: Colors.white,
+          fontWeight: FontWeight.bold,
+          ),
+        ),
+      ),
       body: Column(
         children: [
           // 🔍 Buscador
