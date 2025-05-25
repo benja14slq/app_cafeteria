@@ -1,9 +1,6 @@
-import 'dart:convert';
-
 import 'package:app_cafeteria/app_colors/app_colors.dart';
-import 'package:app_cafeteria/screen_tienda/store_own_page.dart';
+import 'package:app_cafeteria/screen/home.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:crypto/crypto.dart';
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -61,7 +58,7 @@ class _LoginAdminState extends State<LoginAdmin> {
       if (tipo == 'Administrador') {
         Navigator.of(
           context,
-        ).pushReplacement(MaterialPageRoute(builder: (_) => const StoreOwnPage()));
+        ).pushReplacement(MaterialPageRoute(builder: (_) => const HomePage()));
       } else {
         _mostrarError('Solo ingresan estudiantes');
       }
