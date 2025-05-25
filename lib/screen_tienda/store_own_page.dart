@@ -29,6 +29,7 @@ class _StoreOwnPageState extends State<StoreOwnPage> {
     return Scaffold(
       appBar: AppBar(
         backgroundColor: AppColors.primary,
+        automaticallyImplyLeading: false,
         title: const Text(
           'Cafetería Express',
           style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold),

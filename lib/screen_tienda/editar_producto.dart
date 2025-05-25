@@ -122,6 +122,7 @@ class _EditarProductoPageState extends State<EditarProductoPage> {
           ],
         ),
       ),
+      backgroundColor: AppColors.backgroundLight,
     );
   }
 }

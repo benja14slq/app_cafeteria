@@ -73,6 +73,7 @@ class _StoreRetiroPageState extends State<StoreRetiroPage> {
     return Scaffold(
       appBar: AppBar(
         backgroundColor: AppColors.primary,
+        automaticallyImplyLeading: false,
         title: Text(
           'Cafetería Express',
           style: const TextStyle(

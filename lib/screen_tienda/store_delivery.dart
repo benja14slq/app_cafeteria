@@ -75,6 +75,7 @@ class _StoreDeliveryPageState extends State<StoreDeliveryPage> {
     return Scaffold(
       appBar: AppBar(
         backgroundColor: AppColors.primary,
+        automaticallyImplyLeading: false,
         title: Text(
           'Cafetería Express',
           style: const TextStyle(
