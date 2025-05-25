@@ -1,7 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:provider/provider.dart';
 import 'package:app_cafeteria/app_colors/app_colors.dart';
-import 'package:app_cafeteria/screen_tienda/cart_inventario_model.dart';
 
 class InventarioCard extends StatelessWidget {
   final String id;

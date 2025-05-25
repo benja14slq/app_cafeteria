@@ -1,7 +1,5 @@
 import 'package:app_cafeteria/app_colors/app_colors.dart';
 import 'package:app_cafeteria/screen_tienda/narbar_tienda.dart';
-import 'package:app_cafeteria/screen/pedidos.dart';
-import 'package:app_cafeteria/screen/perfil_page.dart';
 import 'package:app_cafeteria/screen_tienda/store_Retiro.dart';
 import 'package:app_cafeteria/screen_tienda/store_delivery.dart';
 import 'package:app_cafeteria/screen_tienda/store_own_page.dart';

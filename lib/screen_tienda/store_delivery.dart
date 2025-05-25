@@ -15,8 +15,8 @@ class StoreDeliveryPage extends StatefulWidget {
 
 class _StoreDeliveryPageState extends State<StoreDeliveryPage> {
   List<CartItem> _allProducts = [];
-  String _selectedCategory = 'Todo';
-  String _searchTerm = '';
+  final String _selectedCategory = 'Todo';
+  final String _searchTerm = '';
   final TextEditingController _searchController = TextEditingController();
 
   @override

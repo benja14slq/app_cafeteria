@@ -15,8 +15,8 @@ class StoreRetiroPage extends StatefulWidget {
 
 class _StoreRetiroPageState extends State<StoreRetiroPage> {
   List<CartItem> _allProducts = [];
-  String _selectedCategory = 'Todo';
-  String _searchTerm = '';
+  final String _selectedCategory = 'Todo';
+  final String _searchTerm = '';
   final TextEditingController _searchController = TextEditingController();
 
   @override
