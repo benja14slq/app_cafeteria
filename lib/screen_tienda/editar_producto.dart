@@ -1,6 +1,6 @@
 import 'package:app_cafeteria/app_colors/app_colors.dart';
+import 'package:app_cafeteria/screen_tienda/store_own_pedidos.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 
 class EditarProductoPage extends StatefulWidget {
@@ -19,9 +19,7 @@ class EditarProductoPage extends StatefulWidget {
     required this.price,
     required this.category,
     required this.stock,
-    });
-
-
+  });
 
   @override
   State<EditarProductoPage> createState() => _EditarProductoPageState();
@@ -56,20 +54,27 @@ class _EditarProductoPageState extends State<EditarProductoPage> {
 
   Future<void> _guardarCambios() async {
     try {
-      await FirebaseFirestore.instance.collection("Productos").doc(widget.id).update({
-        'name': _nameController.text,
-        'price': double.tryParse(_priceController.text) ?? 0,
-        'imageUrl': _imageUrlController.text,
-        'stock': int.tryParse(_stockController.text) ?? 0,
-        'category': _categoryController.text,
-      });
+      await FirebaseFirestore.instance
+          .collection("Productos")
+          .doc(widget.id)
+          .update({
+            'name': _nameController.text,
+            'price': double.tryParse(_priceController.text) ?? 0,
+            'imageUrl': _imageUrlController.text,
+            'stock': int.tryParse(_stockController.text) ?? 0,
+            'category': _categoryController.text,
+          });
 
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Producto Actualizado')),
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(const SnackBar(content: Text('Producto Actualizado')));
+
+      Navigator.pushAndRemoveUntil(
+        context,
+        MaterialPageRoute(builder: (_) => const StoreOwnPedidos(selectedIndex: 2)),
+        (route) => false,
       );
-
-      Navigator.pop(context);
-    } catch (e){
+    } catch (e) {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text('Error al guardar los cambios')),
       );
@@ -90,6 +95,7 @@ class _EditarProductoPageState extends State<EditarProductoPage> {
           children: [
             TextField(
               controller: _nameController,
+              readOnly: true,
               decoration: const InputDecoration(labelText: 'Nombre'),
             ),
             TextField(
@@ -104,15 +110,17 @@ class _EditarProductoPageState extends State<EditarProductoPage> {
             ),
             TextField(
               controller: _categoryController,
+              readOnly: true,
               decoration: const InputDecoration(labelText: 'Categoría'),
             ),
             TextField(
               controller: _imageUrlController,
+              readOnly: true,
               decoration: const InputDecoration(labelText: 'URL de imagen'),
             ),
             const SizedBox(height: 20),
             ElevatedButton(
-              onPressed: _guardarCambios, 
+              onPressed: _guardarCambios,
               style: ElevatedButton.styleFrom(
                 backgroundColor: AppColors.primary,
                 foregroundColor: AppColors.backgroundLight,

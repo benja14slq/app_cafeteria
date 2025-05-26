@@ -13,7 +13,7 @@ class OrderPage extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: AppColors.backgroundLight,
-      appBar: const HeaderPage(showBackButton: true),
+      appBar: const HeaderPage(showBackButton: false),
       body: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [

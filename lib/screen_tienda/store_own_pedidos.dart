@@ -6,17 +6,28 @@ import 'package:app_cafeteria/screen_tienda/store_retiro.dart';
 import 'package:flutter/material.dart';
 
 class StoreOwnPedidos extends StatefulWidget {
-  const StoreOwnPedidos({super.key});
+  final int selectedIndex;
+  const StoreOwnPedidos({super.key, this.selectedIndex = 0});
 
   @override
   State<StoreOwnPedidos> createState() => _StoreOwnPedidosState();
 }
 
 class _StoreOwnPedidosState extends State<StoreOwnPedidos> {
-  int _currentIndex = 0; //Controla que pestaña esta activa
+  late int _currentIndex; //Controla que pestaña esta activa
 
   // Aquí tus pantallas SIN Scaffold ni NavBar
-  final List<Widget> _pages = const [StoreRetiroPage(),StoreDeliveryPage (), StoreOwnPage()];
+  final List<Widget> _pages = const [
+    StoreRetiroPage(),
+    StoreDeliveryPage(),
+    StoreOwnPage(),
+  ];
+
+  @override
+  void initState() {
+    super.initState();
+    _currentIndex = widget.selectedIndex;
+  }
 
   @override
   Widget build(BuildContext context) {
