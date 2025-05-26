@@ -18,13 +18,36 @@ class _LoginPageState extends State<LoginPage> {
   final _emailController = TextEditingController();
   final _passwordController = TextEditingController();
   bool _isPasswordVisible = false;
-  final bool _rememberMe = false;
+  bool _isLoading = false;
+
+  @override
+  void initState() {
+    super.initState();
+    _verificarSesionExistente();
+  }
 
   @override
   void dispose() {
     _emailController.dispose();
     _passwordController.dispose();
     super.dispose();
+  }
+
+  // Verificar si ya hay una sesión activa
+  Future<void> _verificarSesionExistente() async {
+    try {
+      final prefs = await SharedPreferences.getInstance();
+      final sesionActiva = prefs.getBool('loggedIn') ?? false;
+      
+      if (sesionActiva && mounted) {
+        // Si hay sesión activa, ir directamente al home
+        Navigator.of(context).pushReplacement(
+          MaterialPageRoute(builder: (_) => const HomePage())
+        );
+      }
+    } catch (e) {
+      print('Error verificando sesión: $e');
+    }
   }
 
   Future<void> _iniciarSesion() async {
@@ -36,12 +59,16 @@ class _LoginPageState extends State<LoginPage> {
       return;
     }
 
+    setState(() {
+      _isLoading = true;
+    });
+
     try {
       final usuarios = FirebaseFirestore.instance.collection('usuarios');
       final consulta = await usuarios.where('correo', isEqualTo: correo).get();
 
       if (consulta.docs.isEmpty) {
-        _mostrarError('Usuario no encontrado');
+        if (mounted) _mostrarError('Usuario no encontrado');
         return;
       }
 
@@ -49,23 +76,38 @@ class _LoginPageState extends State<LoginPage> {
       final contrasenaHash = sha256.convert(utf8.encode(contrasena)).toString();
 
       if (usuario['contraseña'] != contrasenaHash) {
-        _mostrarError('Contraseña incorrecta');
+        if (mounted) _mostrarError('Contraseña incorrecta');
         return;
       }
 
+      // Guardar datos de sesión
       final prefs = await SharedPreferences.getInstance();
       await prefs.setString('correo', correo);
+      await prefs.setBool('loggedIn', true);
+      
+      // También puedes guardar otros datos del usuario si los necesitas
+      await prefs.setString('nombre', usuario['nombre'] ?? '');
+      await prefs.setString('userId', consulta.docs.first.id);
 
       // Inicio de sesión exitoso
-      Navigator.of(
-        context,
-      ).pushReplacement(MaterialPageRoute(builder: (_) => const HomePage()));
+      if (mounted) {
+        Navigator.of(context).pushReplacement(
+          MaterialPageRoute(builder: (_) => const HomePage())
+        );
+      }
     } catch (e) {
-      _mostrarError('Error: $e');
+      if (mounted) _mostrarError('Error: $e');
+    } finally {
+      if (mounted) {
+        setState(() {
+          _isLoading = false;
+        });
+      }
     }
   }
 
   void _mostrarError(String mensaje) {
+    if (!mounted) return;
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(content: Text(mensaje), backgroundColor: Colors.red),
     );
@@ -126,6 +168,7 @@ class _LoginPageState extends State<LoginPage> {
                     child: TextField(
                       controller: _emailController,
                       keyboardType: TextInputType.emailAddress,
+                      enabled: !_isLoading,
                       decoration: InputDecoration(
                         hintText: 'Correo electrónico',
                         prefixIcon: Icon(
@@ -160,6 +203,7 @@ class _LoginPageState extends State<LoginPage> {
                     child: TextField(
                       controller: _passwordController,
                       obscureText: !_isPasswordVisible,
+                      enabled: !_isLoading,
                       decoration: InputDecoration(
                         hintText: 'Contraseña',
                         prefixIcon: Icon(
@@ -173,7 +217,7 @@ class _LoginPageState extends State<LoginPage> {
                                 : Icons.visibility,
                             color: AppColors.secondary,
                           ),
-                          onPressed: () {
+                          onPressed: _isLoading ? null : () {
                             setState(() {
                               _isPasswordVisible = !_isPasswordVisible;
                             });
@@ -196,7 +240,7 @@ class _LoginPageState extends State<LoginPage> {
                     width: double.infinity,
                     height: 55,
                     child: ElevatedButton(
-                      onPressed: _iniciarSesion,
+                      onPressed: _isLoading ? null : _iniciarSesion,
                       style: ElevatedButton.styleFrom(
                         backgroundColor: AppColors.primary,
                         foregroundColor: Colors.white,
@@ -206,14 +250,23 @@ class _LoginPageState extends State<LoginPage> {
                           borderRadius: BorderRadius.circular(12),
                         ),
                       ),
-                      child: const Text(
-                        'INICIAR SESIÓN',
-                        style: TextStyle(
-                          fontSize: 16,
-                          fontWeight: FontWeight.bold,
-                          letterSpacing: 1,
-                        ),
-                      ),
+                      child: _isLoading
+                        ? const SizedBox(
+                            height: 20,
+                            width: 20,
+                            child: CircularProgressIndicator(
+                              strokeWidth: 2,
+                              valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
+                            ),
+                          )
+                        : const Text(
+                            'INICIAR SESIÓN',
+                            style: TextStyle(
+                              fontSize: 16,
+                              fontWeight: FontWeight.bold,
+                              letterSpacing: 1,
+                            ),
+                          ),
                     ),
                   ),
                   const SizedBox(height: 20),
@@ -230,7 +283,7 @@ class _LoginPageState extends State<LoginPage> {
                         ),
                       ),
                       TextButton(
-                        onPressed: () {
+                        onPressed: _isLoading ? null : () {
                           Navigator.push(
                             context,
                             MaterialPageRoute(

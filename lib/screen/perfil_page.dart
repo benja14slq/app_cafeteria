@@ -1,8 +1,12 @@
 // account_page.dart
 import 'package:app_cafeteria/app_colors/app_colors.dart';
+import 'package:app_cafeteria/screen/add_cart.dart';
+import 'package:app_cafeteria/screen/login.dart';
+import 'package:app_cafeteria/sercvices/auth_service.dart';
 import 'package:app_cafeteria/widgets/header_page.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class AccountPage extends StatefulWidget {
@@ -235,7 +239,12 @@ class _AccountPageState extends State<AccountPage> {
                       title: 'Billetera',
                       subtitle: 'Métodos de pago y saldo',
                       onTap: () {
-                        // Navegar a la pantalla de billetera
+                        Navigator.of(context).push(
+                          MaterialPageRoute(
+                             builder: (context) => const AddCardScreen(),
+                          ),
+                         );
+                      // Navegar a la pantalla de billetera
                       },
                     ),
                   ],
@@ -244,61 +253,17 @@ class _AccountPageState extends State<AccountPage> {
 
               const SizedBox(height: 30),
 
-              // Sección adicional: Preferencias
-              Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 24),
-                child: Row(
-                  children: [
-                    Container(
-                      width: 4,
-                      height: 20,
-                      decoration: BoxDecoration(
-                        color: AppColors.accent1,
-                        borderRadius: BorderRadius.circular(2),
-                      ),
-                    ),
-                    const SizedBox(width: 8),
-                    Text(
-                      'Preferencias',
-                      style: TextStyle(
-                        fontSize: 18,
-                        fontWeight: FontWeight.bold,
-                        color: AppColors.primaryDark,
-                        letterSpacing: 0.5,
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-
-              const SizedBox(height: 16),
-
-              // Opciones de preferencias
-              Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 20.0),
-                child: Column(
-                  children: [
-                    _buildToggleOption(
-                      context,
-                      icon: Icons.notifications,
-                      title: 'Notificaciones',
-                      value: true,
-                      onChanged: (value) {
-                        // Cambiar configuración de notificaciones
-                      },
-                    ),
-                  ],
-                ),
-              ),
-
-              const SizedBox(height: 30),
 
               // Botón de cerrar sesión
               Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 20.0),
                 child: ElevatedButton.icon(
                   onPressed: () {
-                    // Lógica para cerrar sesión
+                    Provider.of<AuthService>(context, listen: false).signOut();
+                      Navigator.of(context).pushAndRemoveUntil(
+                      MaterialPageRoute(builder: (_) => const LoginPage()),
+                      (route) => false,
+                    );
                   },
                   style: ElevatedButton.styleFrom(
                     backgroundColor: Colors.white,

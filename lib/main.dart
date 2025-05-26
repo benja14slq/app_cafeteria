@@ -1,6 +1,8 @@
 import 'package:app_cafeteria/app_colors/app_colors.dart';
 import 'package:app_cafeteria/models/cart_model.dart';
 import 'package:app_cafeteria/screen/login.dart';
+import 'package:app_cafeteria/screen/home.dart';
+import 'package:app_cafeteria/sercvices/auth_service.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:firebase_core/firebase_core.dart';
@@ -17,13 +19,14 @@ class MyApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return ChangeNotifierProvider(
-      create:
-          (ctx) => CartModel(), //Permite que cualquier widget acceda al carrito
+    return MultiProvider(
+      providers: [
+        ChangeNotifierProvider(create: (ctx) => CartModel()),
+        ChangeNotifierProvider(create: (ctx) => AuthService()),
+      ],
       child: MaterialApp(
-        title: 'Cafetería Express', // Nombre de la app
+        title: 'Cafetería Express',
         theme: ThemeData(
-          //Tema General
           primaryColor: AppColors.primary,
           colorScheme: ColorScheme.fromSeed(
             seedColor: AppColors.primary,
@@ -32,8 +35,81 @@ class MyApp extends StatelessWidget {
           useMaterial3: true,
         ),
         debugShowCheckedModeBanner: false,
-        home:
-            LoginPage(), // Define la primera pantalla que se muestra: El Login
+        home: const SplashScreen(),
+      ),
+    );
+  }
+}
+
+class SplashScreen extends StatefulWidget {
+  const SplashScreen({super.key});
+
+  @override
+  State<SplashScreen> createState() => _SplashScreenState();
+}
+
+class _SplashScreenState extends State<SplashScreen> {
+  @override
+  void initState() {
+    super.initState();
+    _checkAuthAndNavigate();
+  }
+
+  Future<void> _checkAuthAndNavigate() async {
+    // Pequeña pausa para mostrar splash (opcional)
+    await Future.delayed(const Duration(milliseconds: 1500));
+    
+    if (!mounted) return;
+    
+    final authService = Provider.of<AuthService>(context, listen: false);
+    
+    if (authService.isAuthenticated) {
+      Navigator.of(context).pushReplacement(
+        MaterialPageRoute(builder: (_) => const HomePage())
+      );
+    } else {
+      Navigator.of(context).pushReplacement(
+        MaterialPageRoute(builder: (_) => const LoginPage())
+      );
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      backgroundColor: AppColors.primary,
+      body: Center(
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Container(
+              height: 120,
+              width: 120,
+              decoration: const BoxDecoration(
+                color: Colors.white,
+                shape: BoxShape.circle,
+              ),
+              child: Icon(
+                Icons.local_cafe,
+                size: 60,
+                color: AppColors.primary,
+              ),
+            ),
+            const SizedBox(height: 30),
+            const Text(
+              'Cafetería Express',
+              style: TextStyle(
+                fontSize: 28,
+                fontWeight: FontWeight.bold,
+                color: Colors.white,
+              ),
+            ),
+            const SizedBox(height: 20),
+            const CircularProgressIndicator(
+              valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
+            ),
+          ],
+        ),
       ),
     );
   }
