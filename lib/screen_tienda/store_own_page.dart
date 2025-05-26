@@ -1,5 +1,4 @@
 import 'package:app_cafeteria/app_colors/app_colors.dart';
-import 'package:app_cafeteria/models/cart_model.dart';
 import 'package:app_cafeteria/screen_tienda/agregar_producto.dart';
 import 'package:app_cafeteria/screen_tienda/cart_inventario_model.dart';
 import 'package:app_cafeteria/screen_tienda/inventario_card.dart';
