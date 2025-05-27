@@ -25,8 +25,17 @@ class HeaderPage extends StatelessWidget implements PreferredSizeWidget {
 
   @override
   Widget build(BuildContext context) {
+    final CartItemCount = context.watch<CartModel>().itemCount;
     return AppBar(
       backgroundColor: AppColors.primary,
+      elevation: 0,
+      leading:
+          showBackButton
+              ? IconButton(
+                onPressed: () => Navigator.of(context).pop(),
+                icon: const Icon(Icons.arrow_back, color: Colors.white),
+              )
+              : null,
       title: Text(
         title,
         style: const TextStyle(
@@ -34,13 +43,6 @@ class HeaderPage extends StatelessWidget implements PreferredSizeWidget {
           fontWeight: FontWeight.bold,
         ),
       ),
-      leading:
-          showBackButton // Usa el parámetro en lugar de Navigator.canPop()
-              ? IconButton(
-                icon: const Icon(Icons.arrow_back, color: Colors.white),
-                onPressed: () => Navigator.of(context).pop(),
-              )
-              : null,
       actions: [
         Stack(
           alignment: Alignment.topRight,
@@ -48,6 +50,16 @@ class HeaderPage extends StatelessWidget implements PreferredSizeWidget {
             IconButton(
               icon: const Icon(Icons.shopping_cart, color: Colors.white),
               onPressed: () {
+                final currentRoute = ModalRoute.of(context)?.settings.name;
+
+                if (currentRoute != OrderPage.routeName) {
+                  Navigator.of(context).push(
+                    MaterialPageRoute(
+                      settings: const RouteSettings(name: OrderPage.routeName),
+                      builder: (_) => const OrderPage(showBackButton: true),
+                    ),
+                  );
+                }
               },
             ),
             Consumer<CartModel>(
@@ -82,4 +94,6 @@ class HeaderPage extends StatelessWidget implements PreferredSizeWidget {
       ],
     );
   }
+
+  Size get PreferredSize => const Size.fromHeight(kToolbarHeight);
 }

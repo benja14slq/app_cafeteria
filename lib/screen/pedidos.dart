@@ -7,13 +7,15 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
 class OrderPage extends StatelessWidget {
-  const OrderPage({super.key});
+  static const String routeName = '/order';
+  final bool showBackButton;
+  const OrderPage({super.key, required this.showBackButton});
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: AppColors.backgroundLight,
-      appBar: const HeaderPage(showBackButton: false),
+      appBar: HeaderPage(showBackButton: showBackButton),
       body: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -131,7 +133,8 @@ class OrderPage extends StatelessWidget {
                 return ListView.builder(
                   padding: const EdgeInsets.symmetric(vertical: 8),
                   itemCount: cart.items.length,
-                  itemBuilder: (ctx, i) => CartItemWidget(cartItem: cart.items[i]),
+                  itemBuilder:
+                      (ctx, i) => CartItemWidget(cartItem: cart.items[i]),
                 );
               },
             ),
@@ -152,59 +155,60 @@ class OrderPage extends StatelessWidget {
             child: Column(
               children: [
                 Consumer<CartModel>(
-                  builder: (ctx, cart, _) =>
-                      cart.items.isNotEmpty
-                          ? Column(
-                              children: [
-                                Row(
-                                  mainAxisAlignment:
-                                      MainAxisAlignment.spaceBetween,
-                                  children: [
-                                    Text(
-                                      'Subtotal',
-                                      style: TextStyle(
-                                        fontSize: 16,
-                                        color: Colors.grey.shade700,
+                  builder:
+                      (ctx, cart, _) =>
+                          cart.items.isNotEmpty
+                              ? Column(
+                                children: [
+                                  Row(
+                                    mainAxisAlignment:
+                                        MainAxisAlignment.spaceBetween,
+                                    children: [
+                                      Text(
+                                        'Subtotal',
+                                        style: TextStyle(
+                                          fontSize: 16,
+                                          color: Colors.grey.shade700,
+                                        ),
                                       ),
-                                    ),
-                                    Text(
-                                      '\$${cart.totalAmount.toStringAsFixed(0)}',
-                                      style: TextStyle(
-                                        fontSize: 16,
-                                        color: Colors.grey.shade700,
+                                      Text(
+                                        '\$${cart.totalAmount.toStringAsFixed(0)}',
+                                        style: TextStyle(
+                                          fontSize: 16,
+                                          color: Colors.grey.shade700,
+                                        ),
                                       ),
-                                    ),
-                                  ],
-                                ),
-                                const SizedBox(height: 8),
-                                Row(
-                                  mainAxisAlignment:
-                                      MainAxisAlignment.spaceBetween,
-                                  children: [
-                                    Text(
-                                      'Envío',
-                                      style: TextStyle(
-                                        fontSize: 16,
-                                        color: Colors.grey.shade700,
+                                    ],
+                                  ),
+                                  const SizedBox(height: 8),
+                                  Row(
+                                    mainAxisAlignment:
+                                        MainAxisAlignment.spaceBetween,
+                                    children: [
+                                      Text(
+                                        'Envío',
+                                        style: TextStyle(
+                                          fontSize: 16,
+                                          color: Colors.grey.shade700,
+                                        ),
                                       ),
-                                    ),
-                                    Text(
-                                      'Gratis',
-                                      style: TextStyle(
-                                        fontSize: 16,
-                                        color: AppColors.secondary,
-                                        fontWeight: FontWeight.bold,
+                                      Text(
+                                        'Gratis',
+                                        style: TextStyle(
+                                          fontSize: 16,
+                                          color: AppColors.secondary,
+                                          fontWeight: FontWeight.bold,
+                                        ),
                                       ),
-                                    ),
-                                  ],
-                                ),
-                                const Padding(
-                                  padding: EdgeInsets.symmetric(vertical: 12),
-                                  child: Divider(),
-                                ),
-                              ],
-                            )
-                          : const SizedBox(),
+                                    ],
+                                  ),
+                                  const Padding(
+                                    padding: EdgeInsets.symmetric(vertical: 12),
+                                    child: Divider(),
+                                  ),
+                                ],
+                              )
+                              : const SizedBox(),
                 ),
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -218,87 +222,103 @@ class OrderPage extends StatelessWidget {
                       ),
                     ),
                     Consumer<CartModel>(
-                      builder: (ctx, cart, _) => Text(
-                        '\$${cart.totalAmount.toStringAsFixed(0)}',
-                        style: TextStyle(
-                          fontSize: 24,
-                          fontWeight: FontWeight.bold,
-                          color: AppColors.primaryDark,
-                        ),
-                      ),
+                      builder:
+                          (ctx, cart, _) => Text(
+                            '\$${cart.totalAmount.toStringAsFixed(0)}',
+                            style: TextStyle(
+                              fontSize: 24,
+                              fontWeight: FontWeight.bold,
+                              color: AppColors.primaryDark,
+                            ),
+                          ),
                     ),
                   ],
                 ),
                 const SizedBox(height: 20),
                 Consumer<CartModel>(
-                  builder: (ctx, cart, _) => cart.items.isNotEmpty
-                      ? Row(
-                          children: [
-                            Expanded(
-                              child: ElevatedButton.icon(
-                                onPressed: () {
-                                  Navigator.of(context).push(
-                                    MaterialPageRoute(
-                                      builder: (_) => const OrderTypeScreen(
-                                        isDelivery: true,
+                  builder:
+                      (ctx, cart, _) =>
+                          cart.items.isNotEmpty
+                              ? Row(
+                                children: [
+                                  Expanded(
+                                    child: ElevatedButton.icon(
+                                      onPressed: () {
+                                        Navigator.of(context).push(
+                                          MaterialPageRoute(
+                                            builder:
+                                                (_) => const OrderTypeScreen(
+                                                  isDelivery: true,
+                                                ),
+                                          ),
+                                        );
+                                      },
+                                      style: ElevatedButton.styleFrom(
+                                        backgroundColor:
+                                            AppColors.backgroundLight,
+                                        foregroundColor: AppColors.primaryDark,
+                                        padding: const EdgeInsets.symmetric(
+                                          vertical: 16,
+                                        ),
+                                        shape: RoundedRectangleBorder(
+                                          borderRadius: BorderRadius.circular(
+                                            12,
+                                          ),
+                                          side: BorderSide(
+                                            color: AppColors.primary,
+                                          ),
+                                        ),
+                                        elevation: 0,
+                                      ),
+                                      icon: const Icon(Icons.delivery_dining),
+                                      label: const Text(
+                                        'Delivery',
+                                        style: TextStyle(
+                                          fontSize: 16,
+                                          fontWeight: FontWeight.bold,
+                                        ),
                                       ),
                                     ),
-                                  );
-                                },
-                                style: ElevatedButton.styleFrom(
-                                  backgroundColor: AppColors.backgroundLight,
-                                  foregroundColor: AppColors.primaryDark,
-                                  padding: const EdgeInsets.symmetric(vertical: 16),
-                                  shape: RoundedRectangleBorder(
-                                    borderRadius: BorderRadius.circular(12),
-                                    side: BorderSide(color: AppColors.primary),
                                   ),
-                                  elevation: 0,
-                                ),
-                                icon: const Icon(Icons.delivery_dining),
-                                label: const Text(
-                                  'Delivery',
-                                  style: TextStyle(
-                                    fontSize: 16,
-                                    fontWeight: FontWeight.bold,
-                                  ),
-                                ),
-                              ),
-                            ),
-                            const SizedBox(width: 16),
-                            Expanded(
-                              child: ElevatedButton.icon(
-                                onPressed: () {
-                                  Navigator.of(context).push(
-                                    MaterialPageRoute(
-                                      builder: (_) => const OrderTypeScreen(
-                                        isDelivery: false,
+                                  const SizedBox(width: 16),
+                                  Expanded(
+                                    child: ElevatedButton.icon(
+                                      onPressed: () {
+                                        Navigator.of(context).push(
+                                          MaterialPageRoute(
+                                            builder:
+                                                (_) => const OrderTypeScreen(
+                                                  isDelivery: false,
+                                                ),
+                                          ),
+                                        );
+                                      },
+                                      style: ElevatedButton.styleFrom(
+                                        backgroundColor: AppColors.primary,
+                                        foregroundColor: Colors.white,
+                                        padding: const EdgeInsets.symmetric(
+                                          vertical: 16,
+                                        ),
+                                        shape: RoundedRectangleBorder(
+                                          borderRadius: BorderRadius.circular(
+                                            12,
+                                          ),
+                                        ),
+                                        elevation: 0,
+                                      ),
+                                      icon: const Icon(Icons.store),
+                                      label: const Text(
+                                        'Retiro en local',
+                                        style: TextStyle(
+                                          fontSize: 16,
+                                          fontWeight: FontWeight.bold,
+                                        ),
                                       ),
                                     ),
-                                  );
-                                },
-                                style: ElevatedButton.styleFrom(
-                                  backgroundColor: AppColors.primary,
-                                  foregroundColor: Colors.white,
-                                  padding: const EdgeInsets.symmetric(vertical: 16),
-                                  shape: RoundedRectangleBorder(
-                                    borderRadius: BorderRadius.circular(12),
                                   ),
-                                  elevation: 0,
-                                ),
-                                icon: const Icon(Icons.store),
-                                label: const Text(
-                                  'Retiro en local',
-                                  style: TextStyle(
-                                    fontSize: 16,
-                                    fontWeight: FontWeight.bold,
-                                  ),
-                                ),
-                              ),
-                            ),
-                          ],
-                        )
-                      : const SizedBox(),
+                                ],
+                              )
+                              : const SizedBox(),
                 ),
               ],
             ),

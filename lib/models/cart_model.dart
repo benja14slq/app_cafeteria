@@ -81,4 +81,8 @@ class CartModel extends ChangeNotifier {
     _items.clear();
     notifyListeners();
   }
+
+  bool contains(String id) {
+    return _items.any((item) => item.id == id);
+  }
 }

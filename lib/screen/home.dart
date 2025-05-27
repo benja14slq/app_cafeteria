@@ -16,7 +16,7 @@ class _HomePageState extends State<HomePage> {
   int _currentIndex = 0; //Controla que pestaña esta activa
 
   // Aquí tus pantallas SIN Scaffold ni NavBar
-  final List<Widget> _pages = const [StorePage(), OrderPage(), AccountPage()];
+  final List<Widget> _pages = const [StorePage(), OrderPage(showBackButton: false), AccountPage()];
 
   @override
   Widget build(BuildContext context) {

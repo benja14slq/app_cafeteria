@@ -1,5 +1,6 @@
 // account_page.dart
 import 'package:app_cafeteria/app_colors/app_colors.dart';
+import 'package:app_cafeteria/models/cart_model.dart';
 import 'package:app_cafeteria/screen/add_cart.dart';
 import 'package:app_cafeteria/screen/login.dart';
 import 'package:app_cafeteria/sercvices/auth_service.dart';
@@ -265,6 +266,7 @@ class _AccountPageState extends State<AccountPage> {
                 padding: const EdgeInsets.symmetric(horizontal: 20.0),
                 child: ElevatedButton.icon(
                   onPressed: () {
+                    Provider.of<CartModel>(context, listen: false).clear();
                     Provider.of<AuthService>(context, listen: false).signOut();
                       Navigator.of(context).pushAndRemoveUntil(
                       MaterialPageRoute(builder: (_) => const LoginPage()),
