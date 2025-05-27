@@ -22,9 +22,13 @@ class _LoginPageState extends State<LoginPage> {
 
   // Estado para mostrar u ocultar contraseña
   bool _isPasswordVisible = false;
+  bool _isLoading = false;
 
-  // Estado para recordar al usuario 
-  final bool _rememberMe = false;
+  @override
+  void initState() {
+    super.initState();
+    _verificarSesionExistente();
+  }
 
   @override
   void dispose() {
@@ -34,7 +38,23 @@ class _LoginPageState extends State<LoginPage> {
     super.dispose();
   }
 
-  // Función para iniciar sesión cuando se presiona el boton
+  // Verificar si ya hay una sesión activa
+  Future<void> _verificarSesionExistente() async {
+    try {
+      final prefs = await SharedPreferences.getInstance();
+      final sesionActiva = prefs.getBool('loggedIn') ?? false;
+      
+      if (sesionActiva && mounted) {
+        // Si hay sesión activa, ir directamente al home
+        Navigator.of(context).pushReplacement(
+          MaterialPageRoute(builder: (_) => const HomePage())
+        );
+      }
+    } catch (e) {
+      print('Error verificando sesión: $e');
+    }
+  }
+
   Future<void> _iniciarSesion() async {
     // Obtener los valores y la contraseña ingresada
     final correo = _emailController.text.trim();
@@ -46,6 +66,10 @@ class _LoginPageState extends State<LoginPage> {
       return;
     }
 
+    setState(() {
+      _isLoading = true;
+    });
+
     try {
       // Llamar a colección 'Usuarios' en Firestore
       final usuarios = FirebaseFirestore.instance.collection('usuarios');
@@ -54,7 +78,7 @@ class _LoginPageState extends State<LoginPage> {
 
       // Si no se encuentra ningun usuario, mostrar error
       if (consulta.docs.isEmpty) {
-        _mostrarError('Usuario no encontrado');
+        if (mounted) _mostrarError('Usuario no encontrado');
         return;
       }
 
@@ -65,33 +89,39 @@ class _LoginPageState extends State<LoginPage> {
 
     // Comparar la contraseña ingresada con la almacenada en la base de datos.
       if (usuario['contraseña'] != contrasenaHash) {
-        _mostrarError('Contraseña incorrecta');
+        if (mounted) _mostrarError('Contraseña incorrecta');
         return;
       }
 
-    // Guardar el correo para mantener la sesión iniciada
+      // Guardar datos de sesión
       final prefs = await SharedPreferences.getInstance();
       await prefs.setString('correo', correo);
+      await prefs.setBool('loggedIn', true);
+      
+      // También puedes guardar otros datos del usuario si los necesitas
+      await prefs.setString('nombre', usuario['nombre'] ?? '');
+      await prefs.setString('userId', consulta.docs.first.id);
 
-    // Obtener el tipo de usuario para redireccionar si es estudiante
-      final tipo = usuario['tipo'];
-
-    // Redirigir al HomePage si es de tipo Estudiante
-      if (tipo == 'Estudiante') {
-        Navigator.of(
-          context,
-        ).pushReplacement(MaterialPageRoute(builder: (_) => const HomePage()));
-      } else {
-        _mostrarError('Solo ingresan estudiantes');
+      // Inicio de sesión exitoso
+      if (mounted) {
+        Navigator.of(context).pushReplacement(
+          MaterialPageRoute(builder: (_) => const HomePage())
+        );
       }
     } catch (e) {
-      // Capturar errores inesperados y mostrarlos
-      _mostrarError('Error: $e');
+      if (mounted) _mostrarError('Error: $e');
+    } finally {
+      if (mounted) {
+        setState(() {
+          _isLoading = false;
+        });
+      }
     }
   }
 
   // Función auxiliar para mostrar mensajes de error en un SnackBar
   void _mostrarError(String mensaje) {
+    if (!mounted) return;
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(content: Text(mensaje), backgroundColor: Colors.red),
     );
@@ -152,6 +182,7 @@ class _LoginPageState extends State<LoginPage> {
                     child: TextField(
                       controller: _emailController,
                       keyboardType: TextInputType.emailAddress,
+                      enabled: !_isLoading,
                       decoration: InputDecoration(
                         hintText: 'Correo electrónico',
                         prefixIcon: Icon(
@@ -186,6 +217,7 @@ class _LoginPageState extends State<LoginPage> {
                     child: TextField(
                       controller: _passwordController,
                       obscureText: !_isPasswordVisible,
+                      enabled: !_isLoading,
                       decoration: InputDecoration(
                         hintText: 'Contraseña',
                         prefixIcon: Icon(
@@ -199,7 +231,7 @@ class _LoginPageState extends State<LoginPage> {
                                 : Icons.visibility,
                             color: AppColors.secondary,
                           ),
-                          onPressed: () {
+                          onPressed: _isLoading ? null : () {
                             setState(() {
                               _isPasswordVisible = !_isPasswordVisible;
                             });
@@ -222,7 +254,7 @@ class _LoginPageState extends State<LoginPage> {
                     width: double.infinity,
                     height: 55,
                     child: ElevatedButton(
-                      onPressed: _iniciarSesion,
+                      onPressed: _isLoading ? null : _iniciarSesion,
                       style: ElevatedButton.styleFrom(
                         backgroundColor: AppColors.primary,
                         foregroundColor: Colors.white,
@@ -232,14 +264,23 @@ class _LoginPageState extends State<LoginPage> {
                           borderRadius: BorderRadius.circular(12),
                         ),
                       ),
-                      child: const Text(
-                        'INICIAR SESIÓN',
-                        style: TextStyle(
-                          fontSize: 16,
-                          fontWeight: FontWeight.bold,
-                          letterSpacing: 1,
-                        ),
-                      ),
+                      child: _isLoading
+                        ? const SizedBox(
+                            height: 20,
+                            width: 20,
+                            child: CircularProgressIndicator(
+                              strokeWidth: 2,
+                              valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
+                            ),
+                          )
+                        : const Text(
+                            'INICIAR SESIÓN',
+                            style: TextStyle(
+                              fontSize: 16,
+                              fontWeight: FontWeight.bold,
+                              letterSpacing: 1,
+                            ),
+                          ),
                     ),
                   ),
                   const SizedBox(height: 20),
@@ -256,7 +297,7 @@ class _LoginPageState extends State<LoginPage> {
                         ),
                       ),
                       TextButton(
-                        onPressed: () {
+                        onPressed: _isLoading ? null : () {
                           Navigator.push(
                             context,
                             MaterialPageRoute(

@@ -48,9 +48,6 @@ class HeaderPage extends StatelessWidget implements PreferredSizeWidget {
             IconButton(
               icon: const Icon(Icons.shopping_cart, color: Colors.white),
               onPressed: () {
-                Navigator.of(context).push(
-                  MaterialPageRoute(builder: (context) => const OrderPage()),
-                );
               },
             ),
             Consumer<CartModel>(
