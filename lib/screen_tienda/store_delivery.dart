@@ -1,7 +1,5 @@
 import 'package:app_cafeteria/app_colors/app_colors.dart';
-import 'package:app_cafeteria/card_productos/productos_card.dart';
 import 'package:app_cafeteria/models/cart_model.dart';
-import 'package:app_cafeteria/widgets/header_page.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';

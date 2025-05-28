@@ -1,6 +1,5 @@
-
 import 'package:app_cafeteria/app_colors/app_colors.dart';
-import 'package:app_cafeteria/screen_tienda/store_own_page.dart';
+import 'package:app_cafeteria/screen/login.dart';
 import 'package:app_cafeteria/screen_tienda/store_own_pedidos.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
@@ -58,9 +57,9 @@ class _LoginAdminState extends State<LoginAdmin> {
       final tipo = usuario['tipo'];
 
       if (tipo == 'Administrador') {
-        Navigator.of(
-          context,
-        ).pushReplacement(MaterialPageRoute(builder: (_) => const StoreOwnPedidos()));
+        Navigator.of(context).pushReplacement(
+          MaterialPageRoute(builder: (_) => const StoreOwnPedidos()),
+        );
       } else {
         _mostrarError('Solo ingresan estudiantes');
       }
@@ -79,6 +78,19 @@ class _LoginAdminState extends State<LoginAdmin> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: AppColors.backgroundLight,
+      appBar: AppBar(
+        backgroundColor: AppColors.backgroundLight,
+        elevation: 0,
+        leading: IconButton(
+          onPressed: () {
+            Navigator.pushReplacement(
+              context,
+              MaterialPageRoute(builder: (_) => const LoginPage()),
+            );
+          },
+          icon: const Icon(Icons.arrow_back, color: AppColors.primaryDark),
+        ),
+      ),
       body: SafeArea(
         child: Center(
           child: SingleChildScrollView(

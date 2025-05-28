@@ -1,38 +1,30 @@
+import 'dart:math' as math;
 import 'package:app_cafeteria/app_colors/app_colors.dart';
 import 'package:app_cafeteria/models/cart_model.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
-class OrderTypeScreen extends StatefulWidget {
-  final bool isDelivery; // true para delivery, false para retiro en local
-
-  const OrderTypeScreen({
-    super.key,
-    required this.isDelivery,
-  });
+class RetiroPage extends StatefulWidget {
+  const RetiroPage({super.key});
 
   @override
-  State<OrderTypeScreen> createState() => _OrderTypeScreenState();
+  State<RetiroPage> createState() => _RetiroPageState();
 }
 
-class _OrderTypeScreenState extends State<OrderTypeScreen>
-    with TickerProviderStateMixin {
+class _RetiroPageState extends State<RetiroPage> with TickerProviderStateMixin {
   late AnimationController _animationController;
   late Animation<double> _fadeAnimation;
   late Animation<Offset> _slideAnimation;
 
-  // Controladores para delivery
-  final _direccionController = TextEditingController();
-  final _referenciaController = TextEditingController();
-  final _telefonoController = TextEditingController();
-
   // Controladores para retiro en local
   final _nombreRetiroController = TextEditingController();
   final _telefonoRetiroController = TextEditingController();
-  
+
   String? _horarioSeleccionado;
   DateTime? _fechaSeleccionada;
-  
+
   final List<String> _horariosDisponibles = [
     '08:00 - 08:30',
     '08:30 - 09:00',
@@ -67,21 +59,16 @@ class _OrderTypeScreenState extends State<OrderTypeScreen>
       vsync: this,
     );
 
-    _fadeAnimation = Tween<double>(
-      begin: 0.0,
-      end: 1.0,
-    ).animate(CurvedAnimation(
-      parent: _animationController,
-      curve: Curves.easeInOut,
-    ));
+    _fadeAnimation = Tween<double>(begin: 0.0, end: 1.0).animate(
+      CurvedAnimation(parent: _animationController, curve: Curves.easeInOut),
+    );
 
     _slideAnimation = Tween<Offset>(
       begin: const Offset(0, 0.3),
       end: Offset.zero,
-    ).animate(CurvedAnimation(
-      parent: _animationController,
-      curve: Curves.easeOutCubic,
-    ));
+    ).animate(
+      CurvedAnimation(parent: _animationController, curve: Curves.easeOutCubic),
+    );
 
     _animationController.forward();
   }
@@ -89,9 +76,6 @@ class _OrderTypeScreenState extends State<OrderTypeScreen>
   @override
   void dispose() {
     _animationController.dispose();
-    _direccionController.dispose();
-    _referenciaController.dispose();
-    _telefonoController.dispose();
     _nombreRetiroController.dispose();
     _telefonoRetiroController.dispose();
     super.dispose();
@@ -115,9 +99,7 @@ class _OrderTypeScreenState extends State<OrderTypeScreen>
                     children: [
                       _buildOrderSummary(),
                       const SizedBox(height: 24),
-                      widget.isDelivery
-                          ? _buildDeliveryForm()
-                          : _buildPickupForm(),
+                      _buildPickupForm(),
                       const SizedBox(height: 24),
                       _buildConfirmButton(),
                     ],
@@ -136,9 +118,7 @@ class _OrderTypeScreenState extends State<OrderTypeScreen>
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
         gradient: LinearGradient(
-          colors: widget.isDelivery
-              ? [AppColors.primary, AppColors.primaryDark]
-              : [AppColors.secondary, AppColors.secondaryMedium],
+          colors: [AppColors.secondary, AppColors.secondaryMedium],
         ),
       ),
       child: Column(
@@ -171,16 +151,12 @@ class _OrderTypeScreenState extends State<OrderTypeScreen>
               color: Colors.white.withOpacity(0.2),
               borderRadius: BorderRadius.circular(12),
             ),
-            child: Icon(
-              widget.isDelivery ? Icons.delivery_dining : Icons.store,
-              color: Colors.white,
-              size: 40,
-            ),
+            child: Icon(Icons.store, color: Colors.white, size: 40),
           ),
           const SizedBox(height: 16),
           // Textos centrados
           Text(
-            widget.isDelivery ? 'Delivery' : 'Retiro en Local',
+            'Retiro en Local',
             style: const TextStyle(
               color: Colors.white,
               fontSize: 24,
@@ -190,9 +166,7 @@ class _OrderTypeScreenState extends State<OrderTypeScreen>
           ),
           const SizedBox(height: 8),
           Text(
-            widget.isDelivery
-                ? 'Completa los datos de entrega'
-                : 'Programa tu retiro en cafetería',
+            'Programa tu retiro en cafetería',
             style: TextStyle(
               color: Colors.white.withOpacity(0.9),
               fontSize: 14,
@@ -219,10 +193,7 @@ class _OrderTypeScreenState extends State<OrderTypeScreen>
               children: [
                 Row(
                   children: [
-                    Icon(
-                      Icons.receipt_long,
-                      color: AppColors.primaryDark,
-                    ),
+                    Icon(Icons.receipt_long, color: AppColors.primaryDark),
                     const SizedBox(width: 8),
                     const Text(
                       'Resumen del Pedido',
@@ -234,27 +205,29 @@ class _OrderTypeScreenState extends State<OrderTypeScreen>
                   ],
                 ),
                 const SizedBox(height: 16),
-                ...cart.items.map((item) => Padding(
-                      padding: const EdgeInsets.symmetric(vertical: 4),
-                      child: Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: [
-                          Expanded(
-                            child: Text(
-                              '${item.quantity}x ${item.name}',
-                              style: const TextStyle(fontSize: 14),
-                            ),
+                ...cart.items.map(
+                  (item) => Padding(
+                    padding: const EdgeInsets.symmetric(vertical: 4),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Expanded(
+                          child: Text(
+                            '${item.quantity}x ${item.name}',
+                            style: const TextStyle(fontSize: 14),
                           ),
-                          Text(
-                            '\$${item.total.toStringAsFixed(0)}',
-                            style: const TextStyle(
-                              fontSize: 14,
-                              fontWeight: FontWeight.w600,
-                            ),
+                        ),
+                        Text(
+                          '\$${item.total.toStringAsFixed(0)}',
+                          style: const TextStyle(
+                            fontSize: 14,
+                            fontWeight: FontWeight.w600,
                           ),
-                        ],
-                      ),
-                    )),
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
                 const Divider(height: 24),
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -284,104 +257,10 @@ class _OrderTypeScreenState extends State<OrderTypeScreen>
     );
   }
 
-  Widget _buildDeliveryForm() {
-    return Card(
-      elevation: 4,
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(16),
-      ),
-      child: Padding(
-        padding: const EdgeInsets.all(20),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Row(
-              children: [
-                Icon(
-                  Icons.location_on,
-                  color: AppColors.primary,
-                ),
-                const SizedBox(width: 8),
-                const Text(
-                  'Datos de Entrega',
-                  style: TextStyle(
-                    fontSize: 18,
-                    fontWeight: FontWeight.bold,
-                  ),
-                ),
-              ],
-            ),
-            const SizedBox(height: 20),
-            _buildTextField(
-              controller: _direccionController,
-              label: 'Dirección completa',
-              icon: Icons.home,
-              hint: 'Ej: Av. España 1680, Valparaíso',
-            ),
-            _buildTextField(
-              controller: _referenciaController,
-              label: 'Referencia (opcional)',
-              icon: Icons.info_outline,
-              hint: 'Ej: Casa azul, portón negro',
-            ),
-            _buildTextField(
-              controller: _telefonoController,
-              label: 'Teléfono de contacto',
-              icon: Icons.phone,
-              keyboardType: TextInputType.phone,
-              hint: 'Ej: +56 9 1234 5678',
-            ),
-            const SizedBox(height: 16),
-            Container(
-              padding: const EdgeInsets.all(16),
-              decoration: BoxDecoration(
-                color: AppColors.primary.withOpacity(0.1),
-                borderRadius: BorderRadius.circular(12),
-              ),
-              child: Row(
-                children: [
-                  Icon(
-                    Icons.access_time,
-                    color: AppColors.primary,
-                  ),
-                  const SizedBox(width: 12),
-                  Expanded(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        const Text(
-                          'Tiempo estimado de entrega',
-                          style: TextStyle(
-                            fontWeight: FontWeight.w600,
-                            fontSize: 14,
-                          ),
-                        ),
-                        Text(
-                          '30 - 45 minutos',
-                          style: TextStyle(
-                            color: AppColors.primary,
-                            fontWeight: FontWeight.bold,
-                            fontSize: 16,
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                ],
-              ),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-
   Widget _buildPickupForm() {
     return Card(
       elevation: 4,
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(16),
-      ),
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
       child: Padding(
         padding: const EdgeInsets.all(20),
         child: Column(
@@ -389,17 +268,11 @@ class _OrderTypeScreenState extends State<OrderTypeScreen>
           children: [
             Row(
               children: [
-                Icon(
-                  Icons.schedule,
-                  color: AppColors.secondary,
-                ),
+                Icon(Icons.schedule, color: AppColors.secondary),
                 const SizedBox(width: 8),
                 const Text(
                   'Programar Retiro',
-                  style: TextStyle(
-                    fontSize: 18,
-                    fontWeight: FontWeight.bold,
-                  ),
+                  style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
                 ),
               ],
             ),
@@ -430,10 +303,7 @@ class _OrderTypeScreenState extends State<OrderTypeScreen>
               ),
               child: Row(
                 children: [
-                  Icon(
-                    Icons.store,
-                    color: AppColors.secondary,
-                  ),
+                  Icon(Icons.store, color: AppColors.secondary),
                   const SizedBox(width: 12),
                   Expanded(
                     child: Column(
@@ -533,10 +403,7 @@ class _OrderTypeScreenState extends State<OrderTypeScreen>
                 children: [
                   const Text(
                     'Fecha de retiro',
-                    style: TextStyle(
-                      fontSize: 12,
-                      color: Colors.grey,
-                    ),
+                    style: TextStyle(fontSize: 12, color: Colors.grey),
                   ),
                   Text(
                     _fechaSeleccionada != null
@@ -598,9 +465,13 @@ class _OrderTypeScreenState extends State<OrderTypeScreen>
                         final horario = _horariosDisponibles[index];
                         return ListTile(
                           title: Text(horario),
-                          trailing: _horarioSeleccionado == horario
-                              ? Icon(Icons.check, color: AppColors.secondary)
-                              : null,
+                          trailing:
+                              _horarioSeleccionado == horario
+                                  ? Icon(
+                                    Icons.check,
+                                    color: AppColors.secondary,
+                                  )
+                                  : null,
                           onTap: () {
                             setState(() {
                               _horarioSeleccionado = horario;
@@ -634,10 +505,7 @@ class _OrderTypeScreenState extends State<OrderTypeScreen>
                 children: [
                   const Text(
                     'Horario de retiro',
-                    style: TextStyle(
-                      fontSize: 12,
-                      color: Colors.grey,
-                    ),
+                    style: TextStyle(fontSize: 12, color: Colors.grey),
                   ),
                   Text(
                     _horarioSeleccionado ?? 'Seleccionar horario',
@@ -663,14 +531,11 @@ class _OrderTypeScreenState extends State<OrderTypeScreen>
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(16),
         gradient: LinearGradient(
-          colors: widget.isDelivery
-              ? [AppColors.primary, AppColors.primaryDark]
-              : [AppColors.secondary, AppColors.secondaryMedium],
+          colors: [AppColors.secondary, AppColors.secondaryMedium],
         ),
         boxShadow: [
           BoxShadow(
-            color: (widget.isDelivery ? AppColors.primary : AppColors.secondary)
-                .withOpacity(0.3),
+            color: AppColors.secondary.withOpacity(0.3),
             blurRadius: 8,
             offset: const Offset(0, 4),
           ),
@@ -688,7 +553,7 @@ class _OrderTypeScreenState extends State<OrderTypeScreen>
           ),
         ),
         child: Text(
-          widget.isDelivery ? 'Confirmar Delivery' : 'Confirmar Retiro',
+          'Confirmar Retiro',
           style: const TextStyle(
             color: Colors.white,
             fontSize: 18,
@@ -699,30 +564,118 @@ class _OrderTypeScreenState extends State<OrderTypeScreen>
     );
   }
 
-  void _confirmarPedido() {
+  Future<void> _confirmarPedido() async {
     // Validaciones básicas
-    if (widget.isDelivery) {
-      if (_direccionController.text.isEmpty || _telefonoController.text.isEmpty) {
-        _showError('Por favor completa todos los campos obligatorios');
-        return;
-      }
-    } else {
-      if (_nombreRetiroController.text.isEmpty ||
-          _telefonoRetiroController.text.isEmpty ||
-          _horarioSeleccionado == null ||
-          _fechaSeleccionada == null) {
-        _showError('Por favor completa todos los campos obligatorios');
-        return;
-      }
+
+    if (_nombreRetiroController.text.isEmpty ||
+        _telefonoRetiroController.text.isEmpty ||
+        _horarioSeleccionado == null ||
+        _fechaSeleccionada == null) {
+      _showError('Por favor completa todos los campos obligatorios');
+      return;
     }
 
-    // Aquí iría la lógica para procesar el pedido
-    _showSuccess(widget.isDelivery
-        ? 'Pedido confirmado! Te llegará en 30-45 minutos'
-        : 'Pedido confirmado! Puedes retirarlo el ${_fechaSeleccionada!.day}/${_fechaSeleccionada!.month} a las $_horarioSeleccionado');
+    final cart = Provider.of<CartModel>(context, listen: false);
 
-    // Navegar de vuelta o a una pantalla de confirmación
-    Navigator.of(context).popUntil((route) => route.isFirst);
+    final prefs = await SharedPreferences.getInstance();
+    final userId = prefs.getString('userId');
+
+    if (userId == null) {
+      _showError('Usuario no autenticado');
+      return;
+    }
+
+    try {
+      final userDoc = 
+          await FirebaseFirestore.instance
+              .collection('usuarios')
+              .doc(userId)
+              .get();
+
+      if (!userDoc.exists){
+        _showError('No se encontro al usuario');
+        return;
+      }
+
+      final userData = userDoc.data();
+      final nombre = userData?['nombre'] ?? '';
+      final apellidos = userData?['apellidos'] ?? '';
+
+      final tarjetasSnapshot =
+          await FirebaseFirestore.instance
+              .collection('tarjetas')
+              .where('id_usuario', isEqualTo: userId)
+              .where('activa', isEqualTo: true)
+              .limit(1)
+              .get();
+
+      if (tarjetasSnapshot.docs.isEmpty) {
+        _showError('No tienes una tarjeta activa registrada');
+        return;
+      }
+
+      final tarjeta = tarjetasSnapshot.docs.first.data();
+      final digitos4 = tarjeta['ultimosCuatroDigitos'] ?? '****';
+
+      final random = math.Random().nextInt(9000) + 1000;
+      final orderCode = 'RL$random';
+
+      final productos =
+          cart.items
+              .map(
+                (item) => {
+                  'producto': item.name,
+                  'cantidad': item.quantity,
+                  'subtotal': item.total,
+                  'productoId': item.id,
+                },
+              )
+              .toList();
+      
+      final total = cart.totalAmount;
+      final nombreRetiro = _nombreRetiroController.text;
+      final telefono = _telefonoRetiroController.text;
+      final fecha = _fechaSeleccionada;
+      final hora = _horarioSeleccionado;
+
+      final voucherData = {
+        'usuarioId': userId,
+        'usuario': '$nombre $apellidos',
+        'descripcion': productos,
+        'entregado': false,
+        'tipo': 'Retiro en Local',
+        'orden': orderCode,
+        'total': total,
+        'nombre retiro': nombreRetiro,
+        'fecha retiro': fecha,
+        'hora retiro' : hora,
+        'telefono': telefono,
+        'tarjeta': '**** **** **** $digitos4',
+        'timestamp': FieldValue.serverTimestamp(),
+      };
+
+      await FirebaseFirestore.instance.collection('Vouches').add(voucherData);
+
+      for (final item in cart.items) {
+        final productoRef = FirebaseFirestore.instance
+            .collection('Productos')
+            .doc(item.id);
+        final productoSnap = await productoRef.get();
+        final currentStock = productoSnap.data()?['stock'] ?? 0;
+
+        await productoRef.update({'stock': currentStock - item.quantity});
+      }
+
+      cart.clear();
+
+      _showSuccess(
+      'Pedido confirmado! Puedes retirarlo el ${_fechaSeleccionada!.day}/${_fechaSeleccionada!.month} a las $_horarioSeleccionado',
+      );
+
+      Navigator.of(context).popUntil((route) => route.isFirst);
+      } catch (e) {
+      _showError('Error al procesar el pedido: $e');
+    }
   }
 
   void _showError(String message) {

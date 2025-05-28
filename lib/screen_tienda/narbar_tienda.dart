@@ -48,6 +48,7 @@ class _FloatingNavBarTiendaState extends State<FloatingNavBarTienda> {
             _buildNavItem(0, Icons.store, 'Tienda'),
             _buildNavItem(1, Icons.delivery_dining, 'Delivery'),
             _buildNavItem(2, Icons.inventory, 'Inventario'),
+            _buildNavItem(3, Icons.person, 'Cuenta'),
           ],
         ),
       ),

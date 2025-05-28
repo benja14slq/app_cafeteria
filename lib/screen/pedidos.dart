@@ -1,7 +1,8 @@
 import 'package:app_cafeteria/app_colors/app_colors.dart';
 import 'package:app_cafeteria/models/cart_model.dart';
+import 'package:app_cafeteria/screen/delivery_page.dart';
 import 'package:app_cafeteria/screen/home.dart';
-import 'package:app_cafeteria/screen/orden_type.dart';
+import 'package:app_cafeteria/screen/retiro_page.dart';
 import 'package:app_cafeteria/widgets/header_page.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
@@ -247,9 +248,7 @@ class OrderPage extends StatelessWidget {
                                         Navigator.of(context).push(
                                           MaterialPageRoute(
                                             builder:
-                                                (_) => const OrderTypeScreen(
-                                                  isDelivery: true,
-                                                ),
+                                                (_) => const DeliveryPage(),
                                           ),
                                         );
                                       },
@@ -287,9 +286,7 @@ class OrderPage extends StatelessWidget {
                                         Navigator.of(context).push(
                                           MaterialPageRoute(
                                             builder:
-                                                (_) => const OrderTypeScreen(
-                                                  isDelivery: false,
-                                                ),
+                                                (_) => const RetiroPage()
                                           ),
                                         );
                                       },

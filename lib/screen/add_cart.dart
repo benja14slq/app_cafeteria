@@ -209,6 +209,7 @@ class _AddCardScreenState extends State<AddCardScreen>
         
         tarjetaData = {
           'id_tarjeta': idTarjeta,
+          'id_usuario': _userId,
           'numeroTarjeta': _encriptarDato(numeroTarjeta),
           'nombreTitular': nombreTitular,
           'fechaVencimiento': fechaVencimiento,
@@ -228,6 +229,7 @@ class _AddCardScreenState extends State<AddCardScreen>
         
         tarjetaData = {
           'id_tarjeta': idTarjeta,
+          'id_usuario': _userId,
           'numeroTarjeta': _encriptarDato(numeroTarjeta),
           'nombreTitular': nombreTitular,
           'fechaVencimiento': fechaVencimiento,

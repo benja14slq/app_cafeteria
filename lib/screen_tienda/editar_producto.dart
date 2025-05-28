@@ -58,11 +58,11 @@ class _EditarProductoPageState extends State<EditarProductoPage> {
           .collection("Productos")
           .doc(widget.id)
           .update({
-            'name': _nameController.text,
-            'price': double.tryParse(_priceController.text) ?? 0,
-            'imageUrl': _imageUrlController.text,
+            'producto': _nameController.text,
+            'precio': double.tryParse(_priceController.text) ?? 0,
+            'imagen': _imageUrlController.text,
             'stock': int.tryParse(_stockController.text) ?? 0,
-            'category': _categoryController.text,
+            'categoria': _categoryController.text,
           });
 
       ScaffoldMessenger.of(

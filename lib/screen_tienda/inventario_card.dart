@@ -1,6 +1,4 @@
-import 'package:app_cafeteria/screen_tienda/agregar_producto.dart';
 import 'package:app_cafeteria/screen_tienda/editar_producto.dart';
-import 'package:app_cafeteria/screen_tienda/store_own_page.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:app_cafeteria/app_colors/app_colors.dart';

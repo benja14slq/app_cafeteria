@@ -1,7 +1,6 @@
 // account_page.dart
 import 'package:app_cafeteria/app_colors/app_colors.dart';
 import 'package:app_cafeteria/models/cart_model.dart';
-import 'package:app_cafeteria/screen/add_cart.dart';
 import 'package:app_cafeteria/screen/login.dart';
 import 'package:app_cafeteria/sercvices/auth_service.dart';
 import 'package:app_cafeteria/widgets/header_page.dart';
@@ -10,18 +9,17 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
-class AccountPage extends StatefulWidget {
-  const AccountPage({super.key});
+class AccountPageTienda extends StatefulWidget {
+  const AccountPageTienda({super.key});
 
   @override
-  State<AccountPage> createState() => _AccountPageState();
+  State<AccountPageTienda> createState() => _AccountPageTiendaState();
 }
 
-class _AccountPageState extends State<AccountPage> {
+class _AccountPageTiendaState extends State<AccountPageTienda> {
   // Variables para almacenar datos del Usuario
   String nombreUsuario = '';
   String apellidosUsuario = '';
-  String carreraUsuario = '';
   bool cargando = true; // Indica si los datos aún se están cargando
 
   @override
@@ -39,7 +37,6 @@ class _AccountPageState extends State<AccountPage> {
     if (correo == null) {
       setState(() {
         nombreUsuario = 'Usuario no Identificado';
-        carreraUsuario = '';
         cargando = false;
       });
       return;
@@ -58,14 +55,12 @@ class _AccountPageState extends State<AccountPage> {
       setState(() {
         nombreUsuario = datos['nombre'] ?? 'Sin nombre';
         apellidosUsuario = datos['apellidos'] ?? '';
-        carreraUsuario = datos['carrera'] ?? 'Sin carrera';
         cargando = false;
       });
     } else {
       // Si no se encuentra, mostrar mensaje de error
       setState(() {
         nombreUsuario = 'Usuario no encontrado';
-        carreraUsuario = '';
         cargando = false;
       });
     }
@@ -136,7 +131,7 @@ class _AccountPageState extends State<AccountPage> {
                           ),
                           const SizedBox(height: 4),
                           Text(
-                            carreraUsuario,
+                            'Administrador',
                             style: TextStyle(
                               fontSize: 14,
                               color: Colors.white,
@@ -230,30 +225,6 @@ class _AccountPageState extends State<AccountPage> {
                       },
                     ),
                     const SizedBox(height: 16),
-                    _buildMenuOption(
-                      context,
-                      icon: Icons.history,
-                      title: 'Historial',
-                      subtitle: 'Tus pedidos anteriores',
-                      onTap: () {
-                        // Navegar a la pantalla de historial
-                      },
-                    ),
-                    const SizedBox(height: 16),
-                    _buildMenuOption(
-                      context,
-                      icon: Icons.account_balance_wallet,
-                      title: 'Billetera',
-                      subtitle: 'Métodos de pago y saldo',
-                      onTap: () {
-                        Navigator.of(context).push(
-                          MaterialPageRoute(
-                             builder: (context) => const AddCardScreen(),
-                          ),
-                         );
-                      // Navegar a la pantalla de billetera
-                      },
-                    ),
                   ],
                 ),
               ),
@@ -263,7 +234,7 @@ class _AccountPageState extends State<AccountPage> {
 
               // Botón de cerrar sesión
               Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 20.0),
+                padding: const EdgeInsets.symmetric(horizontal: 50.0),
                 child: ElevatedButton.icon(
                   onPressed: () {
                     Provider.of<CartModel>(context, listen: false).clear();
@@ -296,7 +267,6 @@ class _AccountPageState extends State<AccountPage> {
                   ),
                 ),
               ),
-
               const SizedBox(height: 40),
             ],
           ),
