@@ -2,6 +2,7 @@
 import 'package:app_cafeteria/app_colors/app_colors.dart';
 import 'package:app_cafeteria/models/cart_model.dart';
 import 'package:app_cafeteria/screen/add_cart.dart';
+import 'package:app_cafeteria/screen/historial_pedidos.dart';
 import 'package:app_cafeteria/screen/login.dart';
 import 'package:app_cafeteria/sercvices/auth_service.dart';
 import 'package:app_cafeteria/widgets/header_page.dart';
@@ -226,6 +227,7 @@ class _AccountPageState extends State<AccountPage> {
                       title: 'Ajustes',
                       subtitle: 'Preferencias y configuración',
                       onTap: () {
+                        
                         // Navegar a la pantalla de ajustes
                       },
                     ),
@@ -236,7 +238,11 @@ class _AccountPageState extends State<AccountPage> {
                       title: 'Historial',
                       subtitle: 'Tus pedidos anteriores',
                       onTap: () {
-                        // Navegar a la pantalla de historial
+                        Navigator.of(context).push(
+                          MaterialPageRoute(
+                             builder: (context) => const HistorialPedidos(),
+                          ),
+                         );
                       },
                     ),
                     const SizedBox(height: 16),

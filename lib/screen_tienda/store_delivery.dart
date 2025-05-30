@@ -1,8 +1,7 @@
 import 'package:app_cafeteria/app_colors/app_colors.dart';
-import 'package:app_cafeteria/models/cart_model.dart';
+import 'package:app_cafeteria/screen_tienda/delivery_model.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
-import 'package:provider/provider.dart';
 
 class StoreDeliveryPage extends StatefulWidget {
   const StoreDeliveryPage({super.key});
@@ -12,64 +11,34 @@ class StoreDeliveryPage extends StatefulWidget {
 }
 
 class _StoreDeliveryPageState extends State<StoreDeliveryPage> {
-  List<CartItem> _allProducts = [];
-  final String _selectedCategory = 'Todo';
-  final String _searchTerm = '';
-  final TextEditingController _searchController = TextEditingController();
+  List<DeliveryOrder> _deliveryOrders = [];
 
   @override
   void initState() {
     super.initState();
-    _loadProducts();
+    _loadDeliveryOrders();
   }
 
-  Future<void> _loadProducts() async {
+  Future<void> _loadDeliveryOrders() async {
     final snapshot =
-        await FirebaseFirestore.instance.collection('Productos').get();
-    final productos =
+        await FirebaseFirestore.instance
+            .collection('Vouches')
+            .where('tipo', isEqualTo: 'Delivery')
+            .orderBy('timestamp', descending: true)
+            .get();
+
+    final orders =
         snapshot.docs
-            .map((doc) => CartItem.fromMap(doc.id, doc.data()))
+            .map((doc) => DeliveryOrder.fromFirestore(doc.id, doc.data()))
             .toList();
+
     setState(() {
-      _allProducts = productos;
+      _deliveryOrders = orders;
     });
-  }
-
-  List<String> get _categories {
-    final uniqueCategories =
-        _allProducts.map((p) => p.category).toSet().toList();
-    return ['Todo', ...uniqueCategories];
-  }
-
-  List<CartItem> get _filteredProducts {
-    List<CartItem> categoryFiltered =
-        _selectedCategory == 'Todo'
-            ? _allProducts
-            : _allProducts
-                .where((p) => p.category == _selectedCategory)
-                .toList();
-
-    if (_searchTerm.isNotEmpty) {
-      return categoryFiltered
-          .where(
-            (p) => p.name.toLowerCase().contains(_searchTerm.toLowerCase()),
-          )
-          .toList();
-    }
-
-    return categoryFiltered;
-  }
-
-  @override
-  void dispose() {
-    _searchController.dispose();
-    super.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
-    final cart = Provider.of<CartModel>(context);
-
     return Scaffold(
       appBar: AppBar(
         backgroundColor: AppColors.primary,
@@ -77,15 +46,43 @@ class _StoreDeliveryPageState extends State<StoreDeliveryPage> {
         title: Text(
           'Cafetería Express',
           style: const TextStyle(
-          color: Colors.white,
-          fontWeight: FontWeight.bold,
+            color: Colors.white,
+            fontWeight: FontWeight.bold,
           ),
         ),
       ),
-      body: Column(
-        children: [
-        ],
-      ),
+      body:
+          _deliveryOrders.isEmpty
+              ? const Center(child: Text('No hay pedidos registrados'))
+              : ListView.builder(
+                itemCount: _deliveryOrders.length,
+                itemBuilder: (context, index) {
+                  final order = _deliveryOrders[index];
+                  return Card(
+                    margin: const EdgeInsets.all(10),
+                    child: ListTile(
+                      title: Text('Orden: ${order.orden} - ${order.usuario}'),
+                      subtitle: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text('Total: \$${order.total.toStringAsFixed(2)}'),
+                          Text('Dirección: ${order.direccion}'),
+                          Text('Teléfono: ${order.telefono}'),
+                          Text('Entregado: ${order.entregado ? "Sí" : "No"}'),
+                          const SizedBox(height: 5),
+                          const Text('Productos'),
+                          for (var prod in order.productos)
+                            Text(
+                              '- ${prod['producto']} x${prod['cantidad']} (\$${prod['subtotal']})',
+                              style: const TextStyle(fontSize: 12),
+                            )
+                        ],
+                      ),
+                      isThreeLine: true,
+                    ),
+                  );
+                },
+              ),
     );
   }
 }
