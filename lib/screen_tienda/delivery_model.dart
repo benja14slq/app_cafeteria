@@ -1,3 +1,6 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:intl/intl.dart';
+
 class DeliveryOrder {
   final String id;
   final String usuario;
@@ -8,6 +11,7 @@ class DeliveryOrder {
   final double total;
   final bool entregado;
   final List<dynamic> productos;
+  final Timestamp? timestamp;
 
   DeliveryOrder({
     required this.id,
@@ -19,9 +23,10 @@ class DeliveryOrder {
     required this.total,
     required this.entregado,
     required this.productos,
+    required this.timestamp,
   });
 
-  factory DeliveryOrder.fromFirestore(String id, Map<String, dynamic> data) {
+  factory DeliveryOrder.fromFirestore(String id, Map<String, dynamic> data) {    
     return DeliveryOrder(
       id: id,
       usuario: data['usuario'] ?? '',
@@ -32,6 +37,7 @@ class DeliveryOrder {
       total: (data['total'] ?? 0).toDouble(),
       entregado: data['entregado'] ?? false,
       productos: data['descripcion'] ?? [],
+      timestamp: data['timestamp'],
     );
   }
 }

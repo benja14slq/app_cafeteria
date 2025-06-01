@@ -24,7 +24,6 @@ class _StoreRetiroPageState extends State<StoreRetiroPage> {
         await FirebaseFirestore.instance
             .collection('Vouches')
             .where('tipo', isEqualTo: 'Retiro en Local')
-            .orderBy('timestamp', descending: true)
             .get();
 
     final orders =
@@ -32,9 +31,40 @@ class _StoreRetiroPageState extends State<StoreRetiroPage> {
             .map((doc) => PedidosOrder.fromFirestore(doc.id, doc.data()))
             .toList();
 
+    // Reordenar: primero no entregados (por hora), luego no entregados
+    orders.sort((a, b) {
+      if (a.entregado == b.entregado) {
+        // Comparar por hora si ambos son 'No Entregados'
+        if (!a.entregado) {
+          final horaA = _parseHora(a.hora);
+          final horaB = _parseHora(b.hora);
+          return horaA.compareTo(horaB);
+        }
+        return 0;
+      }
+      return a.entregado ? 1 : -1;
+    });
+
     setState(() {
       _pedidosOrders = orders;
     });
+  }
+
+  TimeOfDay _parseHora(String hora) {
+    try {
+      final parts = hora.split(':');
+      return TimeOfDay(hour: int.parse(parts[0]), minute: int.parse(parts[1]));
+    } catch (_) {
+      return const TimeOfDay(hour: 0, minute: 0);
+    }
+  }
+
+  Future<void> _marcarEntregado(String id) async {
+    await FirebaseFirestore.instance.collection('Vouches').doc(id).update({
+      'entregado': true,
+    });
+
+    _loadRetiroOrders(); //Recargar para actualizar la lista
   }
 
   @override
@@ -76,6 +106,14 @@ class _StoreRetiroPageState extends State<StoreRetiroPage> {
                             Text(
                               '- ${prod['producto']} x${prod['cantidad']} (\$${prod['subtotal']})',
                               style: const TextStyle(fontSize: 12),
+                            ),
+                          if (!order.entregado)
+                            Align(
+                              alignment: Alignment.centerRight,
+                              child: TextButton.icon(
+                                onPressed: () => _marcarEntregado(order.id), 
+                                icon:  const Icon(Icons.check),
+                                label: const Text('Marcar como Entregado')),
                             )
                         ],
                       ),
