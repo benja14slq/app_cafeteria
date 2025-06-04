@@ -1,6 +1,11 @@
 // account_page.dart
 import 'package:app_cafeteria/app_colors/app_colors.dart';
 import 'package:app_cafeteria/screen/add_cart.dart';
+<<<<<<< Updated upstream
+=======
+import 'package:app_cafeteria/screen/edit_perfil.dart';
+import 'package:app_cafeteria/screen/historial_pedidos.dart';
+>>>>>>> Stashed changes
 import 'package:app_cafeteria/screen/login.dart';
 import 'package:app_cafeteria/sercvices/auth_service.dart';
 import 'package:app_cafeteria/widgets/header_page.dart';
@@ -140,7 +145,12 @@ class _AccountPageState extends State<AccountPage> {
                           // Botón de editar perfil
                           InkWell(
                             onTap: () {
-                              // Acción para editar perfil
+                              Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) => const EditProfileScreen(),
+                            ),
+                          );
                             },
                             child: Container(
                               padding: const EdgeInsets.symmetric(
@@ -219,7 +229,16 @@ class _AccountPageState extends State<AccountPage> {
                       title: 'Ajustes',
                       subtitle: 'Preferencias y configuración',
                       onTap: () {
+<<<<<<< Updated upstream
                         // Navegar a la pantalla de ajustes
+=======
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) => const EditProfileScreen(),
+                            ),
+                          );
+>>>>>>> Stashed changes
                       },
                     ),
                     const SizedBox(height: 16),
