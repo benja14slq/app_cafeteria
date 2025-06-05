@@ -25,7 +25,6 @@ class HeaderPage extends StatelessWidget implements PreferredSizeWidget {
 
   @override
   Widget build(BuildContext context) {
-    final CartItemCount = context.watch<CartModel>().itemCount;
     return AppBar(
       backgroundColor: AppColors.primary,
       elevation: 0,
