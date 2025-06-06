@@ -70,7 +70,17 @@ class _AccountPageTiendaState extends State<AccountPageTienda> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: AppColors.backgroundLight,
-      appBar: const HeaderPage(showBackButton: false),
+      appBar: AppBar(
+        backgroundColor: AppColors.primary,
+        automaticallyImplyLeading: false,
+        title: Text(
+          'Cafetería Express',
+          style: const TextStyle(
+            color: Colors.white,
+            fontWeight: FontWeight.bold,
+          ),
+        ),
+      ),
       body: SafeArea(
         child: SingleChildScrollView(
           physics: const BouncingScrollPhysics(),
