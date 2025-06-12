@@ -91,20 +91,20 @@ class _StoreDeliveryPageState extends State<StoreDeliveryPage> {
                       subtitle: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          Text('Total: \$${order.total.toStringAsFixed(2)}'),
-                          Text('Dirección: ${order.direccion}'),
-                          Text('Teléfono: ${order.telefono}'),
+                          Text('Total: \$${order.total.toStringAsFixed(2)}',style: const TextStyle( fontSize: 14),),
+                          Text('Dirección: ${order.direccion}',style: const TextStyle( fontSize: 14),),
+                          Text('Teléfono: ${order.telefono}',style: const TextStyle( fontSize: 14),),
                           if (order.timestamp != null)
                             Text(
-                              'Compra: ${_formatearFechaHora(order.timestamp!)}',
+                              'Compra: ${_formatearFechaHora(order.timestamp!)}',style: const TextStyle( fontSize: 14),
                             ),
-                          Text('Entregado: ${order.entregado ? "Sí" : "No"}'),
+                          Text('Entregado: ${order.entregado ? "Sí" : "No"}',style: const TextStyle( fontSize: 14),),
                           const SizedBox(height: 5),
-                          const Text('Productos'),
+                          const Text('Productos',style: const TextStyle( fontSize: 14),),
                           for (var prod in order.productos)
                             Text(
                               '- ${prod['producto']} x${prod['cantidad']} (\$${prod['subtotal']})',
-                              style: const TextStyle(fontSize: 12),
+                              style: const TextStyle(fontSize: 14),
                             ),
                           if (!order.entregado)
                             Align(

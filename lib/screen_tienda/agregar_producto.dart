@@ -48,7 +48,7 @@ class _AgregarProductoPageState extends State<AgregarProductoPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Agregar Producto'),
+        title: const Text('Agregar Producto' ),
         backgroundColor: AppColors.primary,
         foregroundColor: AppColors.backgroundLight,
       ),
@@ -59,35 +59,55 @@ class _AgregarProductoPageState extends State<AgregarProductoPage> {
           child: ListView(
             children: [
               TextFormField(
-                controller: _nombreController,
-                decoration: const InputDecoration(
-                  labelText: 'Nombre del producto',
-                ),
+                      controller: _nombreController,
+                      decoration: const InputDecoration(
+                        labelText: 'Nombre del producto',
+                        labelStyle: TextStyle(
+                          color: Color.fromARGB(255, 0, 43, 107),
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
                 validator: (value) => value!.isEmpty ? 'Campo requerido' : null,
               ),
               const SizedBox(height: 12),
               TextFormField(
                 controller: _precioController,
-                decoration: const InputDecoration(labelText: 'Precio'),
+                decoration: const InputDecoration(labelText: 'Precio',
+                labelStyle: TextStyle(
+                          color: Color.fromARGB(255, 0, 43, 107),
+                          fontWeight: FontWeight.bold,
+                        ),),
                 keyboardType: TextInputType.number,
                 validator: (value) => value!.isEmpty ? 'Campo requerido' : null,
               ),
               const SizedBox(height: 12),
               TextFormField(
                 controller: _stockController,
-                decoration: const InputDecoration(labelText: 'Stock'),
+                decoration: const InputDecoration(labelText: 'Stock',
+                labelStyle: TextStyle(
+                          color: Color.fromARGB(255, 0, 43, 107),
+                          fontWeight: FontWeight.bold,
+                        ),),
                 keyboardType: TextInputType.number,
                 validator: (value) => value!.isEmpty ? 'Campo requerido' : null,
               ),
               const SizedBox(height: 12),
               TextFormField(
                 controller: _imagenController,
-                decoration: const InputDecoration(labelText: 'URL de imagen'),
+                decoration: const InputDecoration(labelText: 'URL de imagen',
+                labelStyle: TextStyle(
+                          color: Color.fromARGB(255, 0, 43, 107),
+                          fontWeight: FontWeight.bold,
+                        ),),
               ),
               const SizedBox(height: 12),
               TextFormField(
                 controller: _categoriaController,
-                decoration: const InputDecoration(labelText: 'Categoria del Producto'),
+                decoration: const InputDecoration(labelText: 'Categoria del Producto',
+                labelStyle: TextStyle(
+                          color: Color.fromARGB(255, 0, 43, 107),
+                          fontWeight: FontWeight.bold,
+                        ),),
               ),
               const SizedBox(height: 12),
               ElevatedButton(

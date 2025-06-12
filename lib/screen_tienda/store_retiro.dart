@@ -97,16 +97,16 @@ class _StoreRetiroPageState extends State<StoreRetiroPage> {
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           Text('Total: \$${order.total.toStringAsFixed(2)}'),
-                          Text('Fecha Retiro: ${order.fecha}'),
-                          Text('Hora Retiro: ${order.hora}'),
-                          Text('Teléfono: ${order.telefono}'),
-                          Text('Entregado: ${order.entregado ? "Sí" : "No"}'),
+                          Text('Fecha Retiro: ${order.fecha}',style: const TextStyle( fontSize: 14),),
+                          Text('Hora Retiro: ${order.hora}',style: const TextStyle( fontSize: 14),),
+                          Text('Teléfono: ${order.telefono}',style: const TextStyle( fontSize: 14),),
+                          Text('Entregado: ${order.entregado ? "Sí" : "No"}',style: const TextStyle( fontSize: 14),),
                           const SizedBox(height: 5),
-                          const Text('Productos'),
+                          const Text('Productos',style: const TextStyle( fontSize: 14),),
                           for (var prod in order.productos)
                             Text(
                               '- ${prod['producto']} x${prod['cantidad']} (\$${prod['subtotal']})',
-                              style: const TextStyle(fontSize: 12),
+                              style: const TextStyle( fontSize: 14),
                             ),
                           if (!order.entregado)
                             Align(
