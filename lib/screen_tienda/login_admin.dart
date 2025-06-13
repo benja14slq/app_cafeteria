@@ -1,5 +1,4 @@
 import 'package:app_cafeteria/app_colors/app_colors.dart';
-import 'package:app_cafeteria/screen/home.dart';
 import 'package:app_cafeteria/screen/login.dart';
 import 'package:app_cafeteria/screen_tienda/store_own_pedidos.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';

@@ -1,4 +1,5 @@
 import 'package:app_cafeteria/screen_tienda/store_own_page.dart';
+import 'package:app_cafeteria/screen_tienda/store_own_pedidos.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:app_cafeteria/app_colors/app_colors.dart';
@@ -32,10 +33,11 @@ class _AgregarProductoPageState extends State<AgregarProductoPage> {
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(content: Text('Producto agregado correctamente')),
         );
-        Navigator.pushReplacement(
-          context, 
-          MaterialPageRoute(builder: (_) => const StoreOwnPage())
-        );
+        Navigator.pushAndRemoveUntil(
+        context,
+        MaterialPageRoute(builder: (_) => const StoreOwnPedidos(selectedIndex: 2)),
+        (route) => false,
+      );
       } catch (e) {
         ScaffoldMessenger.of(
           context,
