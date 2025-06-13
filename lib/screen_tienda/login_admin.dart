@@ -1,4 +1,5 @@
 import 'package:app_cafeteria/app_colors/app_colors.dart';
+import 'package:app_cafeteria/screen/home.dart';
 import 'package:app_cafeteria/screen/login.dart';
 import 'package:app_cafeteria/screen_tienda/store_own_pedidos.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
@@ -16,13 +17,35 @@ class _LoginAdminState extends State<LoginAdmin> {
   final _emailController = TextEditingController();
   final _passwordController = TextEditingController();
   bool _isPasswordVisible = false;
-  final bool _rememberMe = false;
+
+  @override
+  void initState() {
+    super.initState();
+    _verificarSesionExistente();
+  }
 
   @override
   void dispose() {
     _emailController.dispose();
     _passwordController.dispose();
     super.dispose();
+  }
+
+  // Verificar si ya hay una sesión activa de administrador
+  Future<void> _verificarSesionExistente() async {
+    try {
+      final prefs = await SharedPreferences.getInstance();
+      final sesionActiva = prefs.getBool('loggedIn') ?? false;
+      final tipo = prefs.getString('tipo');
+
+      if (sesionActiva && tipo == 'Administrador' && mounted) {
+        Navigator.of(context).pushReplacement(
+          MaterialPageRoute(builder: (_) => const StoreOwnPedidos()),
+        );
+      }
+    } catch (e) {
+      print('Error verificando sesión: $e');
+    }
   }
 
   Future<void> _iniciarSesion() async {
@@ -43,7 +66,8 @@ class _LoginAdminState extends State<LoginAdmin> {
         return;
       }
 
-      final usuario = consulta.docs.first.data();
+      final doc = consulta.docs.first;
+      final usuario = doc.data();
       final contrasena = usuario['contraseña'];
 
       if (contrasena != contrasenaIngresada) {
@@ -51,17 +75,20 @@ class _LoginAdminState extends State<LoginAdmin> {
         return;
       }
 
-      final prefs = await SharedPreferences.getInstance();
-      await prefs.setString('correo', correo);
-
       final tipo = usuario['tipo'];
 
       if (tipo == 'Administrador') {
+        final prefs = await SharedPreferences.getInstance();
+        await prefs.setString('correo', correo);
+        await prefs.setString('userId', doc.id);
+        await prefs.setString('tipo', 'Administrador');
+        await prefs.setBool('loggedIn', true);
+
         Navigator.of(context).pushReplacement(
           MaterialPageRoute(builder: (_) => const StoreOwnPedidos()),
         );
       } else {
-        _mostrarError('Solo ingresan estudiantes');
+        _mostrarError('Solo ingresan administradores');
       }
     } catch (e) {
       _mostrarError('Error: $e');
@@ -99,7 +126,7 @@ class _LoginAdminState extends State<LoginAdmin> {
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  // Logo o imagen
+                  // Logo
                   Container(
                     height: 100,
                     width: 100,
@@ -126,7 +153,7 @@ class _LoginAdminState extends State<LoginAdmin> {
                   ),
                   const SizedBox(height: 30),
 
-                  // Campo de correo electrónico
+                  // Campo de correo
                   Container(
                     decoration: BoxDecoration(
                       color: Colors.white,
@@ -207,7 +234,7 @@ class _LoginAdminState extends State<LoginAdmin> {
                   ),
                   const SizedBox(height: 30),
 
-                  // Botón de inicio de sesión
+                  // Botón de iniciar sesión
                   SizedBox(
                     width: double.infinity,
                     height: 55,

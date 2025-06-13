@@ -2,8 +2,8 @@
 import 'package:app_cafeteria/app_colors/app_colors.dart';
 import 'package:app_cafeteria/models/cart_model.dart';
 import 'package:app_cafeteria/screen/login.dart';
+import 'package:app_cafeteria/screen_tienda/edit_perfil_admin.dart';
 import 'package:app_cafeteria/sercvices/auth_service.dart';
-import 'package:app_cafeteria/widgets/header_page.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
@@ -153,6 +153,12 @@ class _AccountPageTiendaState extends State<AccountPageTienda> {
                           InkWell(
                             onTap: () {
                               // Acción para editar perfil
+                              Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                  builder: (context) => const EditProfileAdminScreen(),
+                              ),
+                            );
                             },
                             child: Container(
                               padding: const EdgeInsets.symmetric(
@@ -232,6 +238,12 @@ class _AccountPageTiendaState extends State<AccountPageTienda> {
                       subtitle: 'Preferencias y configuración',
                       onTap: () {
                         // Navegar a la pantalla de ajustes
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) => const EditProfileAdminScreen(),
+                            ),
+                          );
                       },
                     ),
                     const SizedBox(height: 16),

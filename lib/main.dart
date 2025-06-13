@@ -2,10 +2,12 @@ import 'package:app_cafeteria/app_colors/app_colors.dart';
 import 'package:app_cafeteria/models/cart_model.dart';
 import 'package:app_cafeteria/screen/login.dart';
 import 'package:app_cafeteria/screen/home.dart';
+import 'package:app_cafeteria/screen_tienda/store_own_pedidos.dart';
 import 'package:app_cafeteria/sercvices/auth_service.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:firebase_core/firebase_core.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'firebase_options.dart';
 
 Future<void> main() async {
@@ -56,21 +58,28 @@ class _SplashScreenState extends State<SplashScreen> {
   }
 
   Future<void> _checkAuthAndNavigate() async {
-    // Pequeña pausa para mostrar splash (opcional)
     await Future.delayed(const Duration(milliseconds: 1500));
-    
+
     if (!mounted) return;
-    
-    final authService = Provider.of<AuthService>(context, listen: false);
-    
-    if (authService.isAuthenticated) {
-      Navigator.of(context).pushReplacement(
-        MaterialPageRoute(builder: (_) => const HomePage())
-      );
+
+    final prefs = await SharedPreferences.getInstance();
+    final loggedIn = prefs.getBool('loggedIn') ?? false;
+    final tipo = prefs.getString('tipo');
+
+    if (loggedIn) {
+      if (tipo == 'Administrador') {
+        Navigator.of(context).pushReplacement(
+          MaterialPageRoute(builder: (_) => const StoreOwnPedidos()),
+        );
+      } else if (tipo == 'Estudiante') {
+        Navigator.of(
+          context,
+        ).pushReplacement(MaterialPageRoute(builder: (_) => const HomePage()));
+      }
     } else {
-      Navigator.of(context).pushReplacement(
-        MaterialPageRoute(builder: (_) => const LoginPage())
-      );
+      Navigator.of(
+        context,
+      ).pushReplacement(MaterialPageRoute(builder: (_) => const LoginPage()));
     }
   }
 
@@ -89,11 +98,7 @@ class _SplashScreenState extends State<SplashScreen> {
                 color: Colors.white,
                 shape: BoxShape.circle,
               ),
-              child: Icon(
-                Icons.local_cafe,
-                size: 60,
-                color: AppColors.primary,
-              ),
+              child: Icon(Icons.local_cafe, size: 60, color: AppColors.primary),
             ),
             const SizedBox(height: 30),
             const Text(

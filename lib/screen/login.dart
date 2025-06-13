@@ -43,12 +43,12 @@ class _LoginPageState extends State<LoginPage> {
     try {
       final prefs = await SharedPreferences.getInstance();
       final sesionActiva = prefs.getBool('loggedIn') ?? false;
-      
+
       if (sesionActiva && mounted) {
         // Si hay sesión activa, ir directamente al home
-        Navigator.of(context).pushReplacement(
-          MaterialPageRoute(builder: (_) => const HomePage())
-        );
+        Navigator.of(
+          context,
+        ).pushReplacement(MaterialPageRoute(builder: (_) => const HomePage()));
       }
     } catch (e) {
       print('Error verificando sesión: $e');
@@ -87,7 +87,7 @@ class _LoginPageState extends State<LoginPage> {
       // Hashear contraseña ingresada, mayor seguridad
       final contrasenaHash = sha256.convert(utf8.encode(contrasena)).toString();
 
-    // Comparar la contraseña ingresada con la almacenada en la base de datos.
+      // Comparar la contraseña ingresada con la almacenada en la base de datos.
       if (usuario['contraseña'] != contrasenaHash) {
         if (mounted) _mostrarError('Contraseña incorrecta');
         return;
@@ -97,16 +97,17 @@ class _LoginPageState extends State<LoginPage> {
       final prefs = await SharedPreferences.getInstance();
       await prefs.setString('correo', correo);
       await prefs.setBool('loggedIn', true);
-      
+
       // También puedes guardar otros datos del usuario si los necesitas
       await prefs.setString('nombre', usuario['nombre'] ?? '');
       await prefs.setString('userId', consulta.docs.first.id);
+      await prefs.setString('tipo', 'Estudiante');
 
       // Inicio de sesión exitoso
       if (mounted) {
-        Navigator.of(context).pushReplacement(
-          MaterialPageRoute(builder: (_) => const HomePage())
-        );
+        Navigator.of(
+          context,
+        ).pushReplacement(MaterialPageRoute(builder: (_) => const HomePage()));
       }
     } catch (e) {
       if (mounted) _mostrarError('Error: $e');
@@ -231,11 +232,14 @@ class _LoginPageState extends State<LoginPage> {
                                 : Icons.visibility,
                             color: AppColors.secondary,
                           ),
-                          onPressed: _isLoading ? null : () {
-                            setState(() {
-                              _isPasswordVisible = !_isPasswordVisible;
-                            });
-                          },
+                          onPressed:
+                              _isLoading
+                                  ? null
+                                  : () {
+                                    setState(() {
+                                      _isPasswordVisible = !_isPasswordVisible;
+                                    });
+                                  },
                         ),
                         border: OutlineInputBorder(
                           borderRadius: BorderRadius.circular(12),
@@ -264,23 +268,26 @@ class _LoginPageState extends State<LoginPage> {
                           borderRadius: BorderRadius.circular(12),
                         ),
                       ),
-                      child: _isLoading
-                        ? const SizedBox(
-                            height: 20,
-                            width: 20,
-                            child: CircularProgressIndicator(
-                              strokeWidth: 2,
-                              valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
-                            ),
-                          )
-                        : const Text(
-                            'INICIAR SESIÓN',
-                            style: TextStyle(
-                              fontSize: 16,
-                              fontWeight: FontWeight.bold,
-                              letterSpacing: 1,
-                            ),
-                          ),
+                      child:
+                          _isLoading
+                              ? const SizedBox(
+                                height: 20,
+                                width: 20,
+                                child: CircularProgressIndicator(
+                                  strokeWidth: 2,
+                                  valueColor: AlwaysStoppedAnimation<Color>(
+                                    Colors.white,
+                                  ),
+                                ),
+                              )
+                              : const Text(
+                                'INICIAR SESIÓN',
+                                style: TextStyle(
+                                  fontSize: 16,
+                                  fontWeight: FontWeight.bold,
+                                  letterSpacing: 1,
+                                ),
+                              ),
                     ),
                   ),
                   const SizedBox(height: 20),
@@ -297,14 +304,17 @@ class _LoginPageState extends State<LoginPage> {
                         ),
                       ),
                       TextButton(
-                        onPressed: _isLoading ? null : () {
-                          Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                              builder: (_) => const RegistroScreen(),
-                            ),
-                          );
-                        },
+                        onPressed:
+                            _isLoading
+                                ? null
+                                : () {
+                                  Navigator.push(
+                                    context,
+                                    MaterialPageRoute(
+                                      builder: (_) => const RegistroScreen(),
+                                    ),
+                                  );
+                                },
                         child: Text(
                           'Regístrate',
                           style: TextStyle(
